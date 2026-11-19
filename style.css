@@ -114,4 +114,5 @@ select{background:var(--bg);color:var(--text);border:1px solid var(--line);borde
 .ai-out .src{font-size:12px;color:var(--muted)}
 .ai-out .src a{margin-right:10px}
 #aiSettings{white-space:nowrap}
-@media (max-width:600px){ #aiSettings .lbl{display:none} #aiSettings{font-size:16px;padding:4px 9px} }
+.head-actions{flex-wrap:wrap}
+@media (max-width:600px){ #aiSettings .lbl{display:none} }
