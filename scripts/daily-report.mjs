@@ -3,14 +3,15 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { appendFileSync } from 'node:fs';
-import { toYahoo, summarize, parseRss, buildPrompt, parseAi, renderEmail } from './lib.mjs';
+import { toYahoo, summarize, parseRss, buildPrompt, parseAi, renderEmail, rankModels } from './lib.mjs';
 
 const ROOT = new URL('..', import.meta.url);
 const env = process.env;
 const DATA_DIR = new URL(env.DATA_DIR ? env.DATA_DIR.replace(/\/?$/, '/') : 'data/', ROOT);
 const OUT_DIR = new URL('out/', ROOT);
 const UA = { 'User-Agent': 'Mozilla/5.0 (stock-desk daily report)' };
-const MODEL = env.GEMINI_MODEL || 'gemini-2.5-flash';
+const MODEL = env.GEMINI_MODEL || 'auto';
+const AUTO_MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
 const GEMINI_BASE = env.GEMINI_BASE || 'https://generativelanguage.googleapis.com';
 const TZ = env.REPORT_TZ || 'Asia/Taipei';
 const KEEP = 90;
@@ -44,29 +45,38 @@ async function fetchStock(symbol) {
   return out;
 }
 
-// GEMINI_API_KEY may hold several keys (comma / newline separated): on 429/5xx try the next key,
-// then the fallback model.
+// GEMINI_API_KEY may hold several keys (comma / newline separated). Each key tries the model list
+// Google tells us which models the key can see (ListModels); try them in rankModels order until one
+// answers (new keys lose old models, old free keys often lack quota for new ones).
 async function askGemini(prompt) {
   const keys = env.GEMINI_API_KEY.split(/[\s,]+/).filter(Boolean);
-  const models = [...new Set([MODEL, 'gemini-2.5-flash-lite'])];
   let last = '';
-  for (const model of models) {
-    for (const key of keys) {
-      const r = await fetch(`${GEMINI_BASE}/v1beta/models/${model}:generateContent`, {
+  for (const key of keys) {
+    let listed = [];
+    try {
+      const lr = await fetch(`${GEMINI_BASE}/v1beta/models?pageSize=1000`, { headers: { 'x-goog-api-key': key } });
+      if (lr.ok) listed = rankModels((await lr.json()).models || []);
+    } catch {}
+    const models = [...new Set([MODEL === 'auto' ? null : MODEL, ...listed, ...AUTO_MODELS].filter(Boolean))].slice(0, 10);
+    for (const model of models) {
+      let r;
+      try { r = await fetch(`${GEMINI_BASE}/v1beta/models/${model}:generateContent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        signal: AbortSignal.timeout(180000),
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           generationConfig: { temperature: 0.4, responseMimeType: 'application/json' },
         }),
-      });
+      }); } catch (e) { last = `Gemini ${model}: ${e.name === 'TimeoutError' ? '逾時' : e.message}`; console.error(last); continue; }
       const j = await r.json().catch(() => ({}));
       if (r.ok) {
         const text = j.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
         return { ...parseAi(text), model };
       }
-      last = `Gemini HTTP ${r.status}: ${j.error?.message || ''}`;
-      if (![429, 500, 503].includes(r.status)) throw new Error(last);
+      last = `Gemini HTTP ${r.status} (${model}): ${j.error?.message || ''}`;
+      console.error(last.slice(0, 200));
+      if (r.status === 401 || r.status === 403 || (r.status === 400 && /api key/i.test(last))) break; // bad key → next key
     }
   }
   throw new Error(last);

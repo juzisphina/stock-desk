@@ -117,15 +117,13 @@
     <div id="aiForm" hidden>
       <label class="small">Gemini 金鑰（可填多把，每行一把；額度用完會自動換下一把）</label>
       <textarea id="aiKeys" rows="4" spellcheck="false" autocomplete="off" placeholder="AIza..."></textarea>
-      <label class="small">模型</label>
+      <label class="small">模型（點「測試金鑰並找模型」會列出這把金鑰能用的全部模型）</label>
       <select id="aiModel">
-        <option value="gemini-2.5-flash">gemini-2.5-flash（推薦，免費）</option>
-        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite（更快，免費額度較多）</option>
-        <option value="gemini-2.5-pro">gemini-2.5-pro（較強，免費額度很少）</option>
+        <option value="auto">自動（推薦：依金鑰自動挑能用的模型）</option>
       </select>
       <div class="row">
         <button class="btn" id="aiSave" type="button">加密儲存</button>
-        <button class="btn ghost" id="aiTest" type="button">測試金鑰</button>
+        <button class="btn ghost" id="aiTest" type="button">測試金鑰並找模型</button>
         <button class="btn ghost" id="aiClear" type="button">清除</button>
       </div>
       <p id="aiMsg" class="small"></p>

@@ -144,3 +144,23 @@ export function renderEmail(rep, siteUrl = '') {
   <p style="color:#6b7280;font-size:12px">由 AI 自動產生，僅供參考，不構成投資建議。</p>
   </body></html>`;
 }
+
+// Pick text-chat Gemini models from a ListModels response and order them for free-tier use:
+// Flash → Flash-Lite → Pro; "-latest" aliases first, then newest version; stable before preview.
+const SKIP = /image|tts|banana|omni|transcribe|robotics|computer|customtools|audio|live|embed|argon|carbon|hydrogen|neon|thinking|exp/i;
+export function rankModels(models) {
+  const names = (models || [])
+    .filter((m) => typeof m === 'string' || (m.supportedGenerationMethods || []).includes('generateContent'))
+    .map((m) => String(typeof m === 'string' ? m : m.name).replace(/^models\//, ''))
+    .filter((n) => /^gemini-/.test(n) && /flash|pro/.test(n) && !SKIP.test(n));
+  const info = (n) => {
+    const tier = /flash-lite/.test(n) ? 1 : /flash/.test(n) ? 0 : 2;
+    const latest = /latest/.test(n) ? 1 : 0;
+    const v = n.match(/^gemini-(\d+(?:\.\d+)?)/);
+    return { tier, latest, ver: v ? parseFloat(v[1]) : 0, preview: /preview/.test(n) ? 1 : 0 };
+  };
+  return [...new Set(names)].sort((a, b) => {
+    const x = info(a), y = info(b);
+    return x.tier - y.tier || y.latest - x.latest || y.ver - x.ver || x.preview - y.preview || a.localeCompare(b);
+  });
+}

@@ -43,20 +43,20 @@ Secrets 是加密儲存的，別人看不到，也不會出現在網站上。
 儲存庫 → **Actions** → 左邊 **daily-report** → **Run workflow**。約 1 分鐘後網站「AI 日報」就會出現新的一天（網頁可能要再等 1 分鐘重新整理）。
 
 ## 網頁上的「⚙ AI 設定」（用自己的金鑰隨時點評）
-1. 點右上角 **⚙** → 輸入密碼 → 填 Gemini 金鑰（可以填多把，每行一把；一把的免費額度用完會自動換下一把）→ **加密儲存**。
+1. 點股票名稱旁「🤖 AI 點評」右邊的 **⚙** → 輸入密碼 → 填 Gemini 金鑰（可以填多把，每行一把；一把的免費額度用完會自動換下一把）→ **加密儲存**。
 2. 之後在任何股票上點 **🤖 AI 點評**：Gemini 會先上網搜尋這檔股票的最新新聞再點評，並附上來源連結。
 3. 如果某天的日報沒有 AI 點評，日報上方會有按鈕「用我的金鑰產生這份日報的 AI 點評」。
 
 - 金鑰用密碼加密後只存在**這台裝置的瀏覽器**裡，不會上傳；換手機或電腦要重新填一次。
 - 這裡的金鑰只給網頁用。每天中午的自動日報和寄信，用的是 GitHub Secrets 裡的 `GEMINI_API_KEY`（也可以填多把，用英文逗號隔開）。
-- 免費的模型是 `gemini-2.5-flash` 和 `gemini-2.5-flash-lite`；更新的模型（3.x）在免費方案通常沒有額度。
+- 模型選「自動」就好：新申請的金鑰只能用新模型，舊金鑰常常只有舊模型的免費額度，網站會自動找能用的那個。
 
 ## 換時間
 改 `.github/workflows/daily-report.yml` 裡的 `cron: '0 4 * * 1-5'`（這是 UTC 時間，`0 4` = 台灣 12:00；週一到週五）。
 GitHub 的定時任務可能晚幾分鐘；儲存庫 60 天沒有任何提交時 GitHub 會暫停定時任務（每天的日報提交會讓它保持執行）。
 
 ## 換 AI 模型
-Settings → Secrets and variables → Actions → **Variables** → 新增 `GEMINI_MODEL`（預設 `gemini-2.5-flash`）。
+Settings → Secrets and variables → Actions → **Variables** → 新增 `GEMINI_MODEL`（預設 `auto`：自動依序試 gemini-flash-latest、gemini-3.8-flash、gemini-2.5-flash…）。
 
 ## 注意
 - 儲存庫是公開的（免費 GitHub Pages 需要），所以產生的日報內容別人也能看到；金鑰和信箱都在 Secrets 裡，不公開。

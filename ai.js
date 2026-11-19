@@ -7,7 +7,10 @@ const GATE_SALT = 'stockdesk-gate-v1';
 const GATE_HASH = '6feb7d4a19e72737f4aa009061f8bb4d39edfe0066ff20bd15a6adfa205decea';
 const ITER = 200000;
 const GEMINI = () => window.STOCKDESK_GEMINI_BASE || 'https://generativelanguage.googleapis.com';
-const FALLBACK_MODEL = 'gemini-2.5-flash-lite';
+// Fallback order if Google's model list can't be read. Normally the list comes from the key itself.
+const AUTO_MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
+const MAX_TRIES = 10;
+const MODEL_STORE = 'stockdesk.models.v1'; // { models: [...ranked], working: 'name' } — not secret
 
 const te = new TextEncoder();
 const b64 = (u8) => btoa(String.fromCharCode(...new Uint8Array(u8)));
@@ -27,7 +30,63 @@ async function aesKey(pw, salt) {
   return crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: ITER }, await pwBase(pw), { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
 function readStore() { try { return JSON.parse(localStorage.getItem(AI_STORE) || 'null'); } catch { return null; } }
-function aiModel() { return readStore()?.model || 'gemini-2.5-flash'; }
+function aiModel() { return readStore()?.model || 'auto'; }
+function modelInfo() { try { return JSON.parse(localStorage.getItem(MODEL_STORE) || '{}'); } catch { return {}; } }
+function setModelInfo(patch) { try { localStorage.setItem(MODEL_STORE, JSON.stringify({ ...modelInfo(), ...patch })); } catch {} }
+let workingModel = modelInfo().working || null; // last model that answered
+function modelChain(pick = aiModel()) {
+  return [...new Set([pick === 'auto' ? null : pick, workingModel, ...(modelInfo().models || []), ...AUTO_MODELS].filter(Boolean))];
+}
+// Ask Google which models this key can see, ranked for free use (rankModels in scripts/lib.mjs).
+async function listModels(key) {
+  const r = await fetch(`${GEMINI()}/v1beta/models?pageSize=1000`, { headers: { 'x-goog-api-key': key } });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(j.error?.message || String(r.status)), { status: r.status });
+  const { rankModels } = await import('./scripts/lib.mjs');
+  return rankModels(j.models || []);
+}
+function fillModelSelect(models, pick) {
+  const opts = ['<option value="auto">自動（推薦：依金鑰自動挑能用的模型）</option>']
+    .concat(models.map((m) => `<option value="${esc(m)}">${esc(m)}</option>`));
+  $('aiModel').innerHTML = opts.join('');
+  $('aiModel').value = models.includes(pick) ? pick : 'auto';
+}
+const keyProblem = (status, msg) => status === 401 || status === 403 || (status === 400 && /api key/i.test(msg));
+
+// Try each key × model until one answers. Returns { j, model, key }.
+async function callGemini(keys, models, body) {
+  const errs = [];
+  for (const k of keys) {
+    for (const model of models) {
+      let r, j;
+      try {
+        r = await fetch(`${GEMINI()}/v1beta/models/${model}:generateContent`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': k }, body: JSON.stringify(body),
+          signal: AbortSignal.timeout(90000),
+        });
+        j = await r.json().catch(() => ({}));
+      } catch (e) {
+        if (e.name === 'TimeoutError') { errs.push({ k, model, status: 0, msg: '逾時' }); continue; }
+        errs.push({ k, model, status: 0, msg: '連線失敗' }); break;
+      }
+      if (r.ok) return { j, model, key: k };
+      const msg = j.error?.message || '';
+      errs.push({ k, model, status: r.status, msg });
+      if (keyProblem(r.status, msg)) break; // this key is bad: skip its other models
+      if (errs.filter((x) => x.k === k).length >= MAX_TRIES) break;
+    }
+  }
+  const e = new Error(explain(errs));
+  e.errs = errs;
+  throw e;
+}
+function explain(errs) {
+  if (!errs.length) return '沒有金鑰';
+  if (errs.every((x) => keyProblem(x.status, x.msg))) return '金鑰無效，請到 ⚙ AI 設定檢查';
+  if (errs.every((x) => x.status === 429 || x.status === 404 || keyProblem(x.status, x.msg))) return '這些金鑰今天能用的免費額度都用完了（或模型已不開放），明天再試或多加一把金鑰';
+  const l = errs[errs.length - 1];
+  return `${l.status} ${l.msg}`.slice(0, 160);
+}
 
 async function saveKeys(keys, model) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -56,7 +115,7 @@ function openAi(after) {
 function showForm() {
   $('aiLock').hidden = true; $('aiForm').hidden = false;
   $('aiKeys').value = aiKeys.join('\n');
-  $('aiModel').value = aiModel();
+  fillModelSelect(modelInfo().models || [], aiModel());
   $('aiMsg').className = 'small';
   $('aiMsg').textContent = aiKeys.length ? `已儲存 ${aiKeys.length} 把金鑰。` : '還沒有金鑰。到 https://aistudio.google.com/apikey 免費申請。';
 }
@@ -80,6 +139,7 @@ $('aiSave').onclick = async () => {
   const keys = parseKeyInput();
   await saveKeys(keys, $('aiModel').value);
   aiKeys = keys;
+  if (!(modelInfo().models || []).length && keys[0]) { try { const m = await listModels(keys[0]); setModelInfo({ models: m }); fillModelSelect(m, $('aiModel').value); } catch {} }
   $('aiMsg').className = 'small ok';
   $('aiMsg').textContent = `已加密儲存 ${keys.length} 把金鑰（只在這台裝置）。`;
 };
@@ -91,19 +151,21 @@ $('aiClear').onclick = () => {
 $('aiTest').onclick = async () => {
   const keys = parseKeyInput();
   if (!keys.length) { $('aiMsg').textContent = '請先填寫金鑰'; return; }
-  $('aiMsg').className = 'small'; $('aiMsg').textContent = '測試中…';
+  $('aiMsg').className = 'small'; $('aiMsg').textContent = '正在向 Google 查詢每把金鑰可用的模型…';
   const lines = [];
+  let all = [];
   for (const k of keys) {
+    let models = [];
+    try { models = await listModels(k); } catch (e) { lines.push(`${mask(k)}：✗ ${keyProblem(e.status, e.message) ? '金鑰無效' : e.message.slice(0, 80)}`); continue; }
+    all = [...new Set([...all, ...models])];
     try {
-      const r = await fetch(`${GEMINI()}/v1beta/models/${$('aiModel').value}:generateContent`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': k },
-        body: JSON.stringify({ contents: [{ parts: [{ text: '只回覆 OK' }] }] }),
-      });
-      const j = await r.json().catch(() => ({}));
-      lines.push(`${mask(k)}：${r.ok ? '✓ 可用' : r.status === 429 ? '⚠ 今天額度用完' : '✗ ' + (j.error?.message || r.status).toString().slice(0, 80)}`);
-    } catch (e) { lines.push(`${mask(k)}：✗ 連線失敗`); }
+      const { model } = await callGemini([k], [...new Set([$('aiModel').value === 'auto' ? null : $('aiModel').value, ...models])].filter(Boolean), { contents: [{ parts: [{ text: '只回覆 OK' }] }] });
+      workingModel = model;
+      lines.push(`${mask(k)}：✓ 可用，自動選用 ${model}（共找到 ${models.length} 個文字模型）`);
+    } catch (e) { lines.push(`${mask(k)}：✗ ${e.message}`); }
   }
-  $('aiMsg').innerHTML = lines.map(esc).join('<br>');
+  if (all.length) { const { rankModels } = await import('./scripts/lib.mjs'); all = rankModels(all); setModelInfo({ models: all, working: workingModel }); fillModelSelect(all, $('aiModel').value); }
+  $('aiMsg').innerHTML = lines.map(esc).join('<br>') + '<br>按「加密儲存」保存。';
 };
 $('aiSettings').onclick = () => openAi();
 $('aiClose').onclick = () => { $('aiModal').hidden = true; };
@@ -112,20 +174,10 @@ $('aiModal').addEventListener('click', (e) => { if (e.target === $('aiModal')) $
 /* ---------- Gemini call with key rotation + model fallback ---------- */
 async function gemini(body) {
   if (!aiKeys.length) throw new Error('沒有金鑰');
-  const models = [...new Set([aiModel(), FALLBACK_MODEL])];
-  let last = '';
-  for (const model of models) {
-    for (const k of aiKeys) {
-      const r = await fetch(`${GEMINI()}/v1beta/models/${model}:generateContent`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': k }, body: JSON.stringify(body),
-      });
-      const j = await r.json().catch(() => ({}));
-      if (r.ok) return { j, model };
-      last = `${r.status} ${j.error?.message || ''}`;
-      if (![429, 500, 503].includes(r.status)) throw new Error(last); // bad key / bad request: stop
-    }
-  }
-  throw new Error(`所有金鑰都暫時不能用（${last.slice(0, 120)}）`);
+  if (!(modelInfo().models || []).length) { try { setModelInfo({ models: await listModels(aiKeys[0]) }); } catch {} }
+  const res = await callGemini(aiKeys, modelChain(), body);
+  if (res.model !== workingModel) { workingModel = res.model; setModelInfo({ working: res.model }); }
+  return res;
 }
 
 function withKeys(fn) {
