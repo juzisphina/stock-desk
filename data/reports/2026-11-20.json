@@ -1,0 +1,220 @@
+{
+  "date": "2026-11-20",
+  "generatedAt": "2026-11-19T17:42:03.057Z",
+  "ai": false,
+  "model": null,
+  "overview": "",
+  "stocks": [
+    {
+      "symbol": "NASDAQ:NVDA",
+      "price": 149.65,
+      "chg1d": -0.87,
+      "chg5d": -9.95,
+      "chg1m": -32.58,
+      "rsi": 20.7,
+      "macdHist": -3.48,
+      "macdTrend": "空头减弱",
+      "news": [
+        {
+          "title": "Being Bearish on Anthropic: $1 Trillion Compute Bill and Nvidia turmoil",
+          "link": "https://finance.yahoo.com/video/being-bearish-on-anthropic-1-trillion-compute-bill-and-nvidia-turmoil-172453054.html?.tsrc=rss",
+          "date": "2026-11-19T17:24:53.000Z"
+        },
+        {
+          "title": "Nvidia reportedly approaches Arm CEO Rene Haas in search for Jensen Huang successor",
+          "link": "https://www.proactiveinvestors.com/companies/news/1102138/nvidia-reportedly-approaches-arm-ceo-rene-haas-in-search-for-jensen-huang-successor-1102138.html?.tsrc=rss",
+          "date": "2026-11-19T17:28:00.000Z"
+        },
+        {
+          "title": "Chip Stocks Waver On Anthropic IPO, AI Prospects",
+          "link": "https://finance.yahoo.com/m/cc197e22-85d3-3a44-97b9-12111805ce48/chip-stocks-waver-on.html?.tsrc=rss",
+          "date": "2026-11-19T17:26:44.000Z"
+        },
+        {
+          "title": "Anthropic Stock Is Now Trading. Should You Buy ANT Today?",
+          "link": "https://www.fool.com/investing/2026/11/19/anthropic-stock-is-now-trading-should-you-buy-ant-today/?.tsrc=rss",
+          "date": "2026-11-19T17:22:02.000Z"
+        },
+        {
+          "title": "Strategy Just Got Dropped From MSCI’s Indexes. Can It Keep Buying Bitcoin?",
+          "link": "https://www.fool.com/investing/2026/11/19/strategy-just-got-dropped-from-msci-s-indexes-can-it-keep-buying-bitcoin/?.tsrc=rss",
+          "date": "2026-11-19T17:32:02.000Z"
+        },
+        {
+          "title": "Memory supply constraints will be even 'tighter' in 2027: Micron CTO",
+          "link": "https://finance.yahoo.com/technology/ai/article/memory-supply-constraints-will-be-even-tighter-in-2027-micron-cto-173141999.html?.tsrc=rss",
+          "date": "2026-11-19T17:31:41.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "NASDAQ:TSLA",
+      "price": 379.9,
+      "chg1d": -1,
+      "chg5d": -4.42,
+      "chg1m": -1.7,
+      "rsi": 49.4,
+      "macdHist": -1.027,
+      "macdTrend": "空头增强",
+      "news": [
+        {
+          "title": "Elon Musk on his $500M in political spending: 'I feel pretty foolish'",
+          "link": "https://finance.yahoo.com/video/elon-musk-on-his-500m-in-political-spending-i-feel-pretty-foolish-151142965.html?.tsrc=rss",
+          "date": "2026-11-19T15:11:42.000Z"
+        },
+        {
+          "title": "TSLL 2X Tesla ETF Is Down 50% in 2026: Can It Double to $20 from Here?",
+          "link": "https://247wallst.com/investing/2026/11/19/tsll-2x-tesla-etf-is-down-50-in-2026-can-it-double-to-20-from-here/?.tsrc=rss",
+          "date": "2026-11-19T17:04:33.000Z"
+        },
+        {
+          "title": "Elon Musk Says He Shouldn’t Get a Tesla Payday Just for Merging With SpaceX. Odds of a 2026 Announcement Slide to 16%",
+          "link": "https://www.benzinga.com/markets/prediction-markets/26/11/63440349/tesla-spacex-merger-pay?utm_source=yahooFinance&utm_campaign=partner_feed&utm_medium=referral&.tsrc=rss",
+          "date": "2026-11-19T16:30:42.000Z"
+        },
+        {
+          "title": "Tesla Stock Could Be Worth Much More in 2027. Here’s the Number I’m Watching",
+          "link": "https://247wallst.com/investing/2026/11/19/tesla-stock-could-be-worth-much-more-in-2027-heres-the-number-im-watching/?.tsrc=rss",
+          "date": "2026-11-19T15:34:58.000Z"
+        },
+        {
+          "title": "Elon Musk Says Tesla and SpaceX Would “Probably” Be Better Together",
+          "link": "https://247wallst.com/investing/2026/11/19/elon-musk-says-tesla-and-spacex-would-probably-be-better-together/?.tsrc=rss",
+          "date": "2026-11-19T15:32:35.000Z"
+        },
+        {
+          "title": "174-year-old American bank’s Bitcoin exposure nears Tesla and SpaceX",
+          "link": "https://www.thestreet.com/crypto/business/174-year-old-american-banks-bitcoin-exposure-nears-tesla-and-spacex?.tsrc=rss",
+          "date": "2026-11-19T15:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "NASDAQ:AAPL",
+      "price": 350.21,
+      "chg1d": -0.63,
+      "chg5d": -1.31,
+      "chg1m": 1.81,
+      "rsi": 54,
+      "macdHist": -0.014,
+      "macdTrend": "死叉",
+      "news": [
+        {
+          "title": "Apple’s Longest-Serving Director Just Cashed Out $32 Million",
+          "link": "https://247wallst.com/investing/2026/11/19/apples-longest-serving-director-just-cashed-out-32-million/?.tsrc=rss",
+          "date": "2026-11-19T17:03:54.000Z"
+        },
+        {
+          "title": "Britain forced to admit secret Apple ‘backdoor’ demand",
+          "link": "https://uk.finance.yahoo.com/news/britain-forced-admit-secret-apple-163037275.html?.tsrc=rss",
+          "date": "2026-11-19T16:30:37.000Z"
+        },
+        {
+          "title": "Services Franchise and Installed Base Anchor Apple’s (AAPL) Durable Earnings Growth",
+          "link": "https://finance.yahoo.com/markets/stocks/articles/services-franchise-installed-anchor-apple-162200683.html?.tsrc=rss",
+          "date": "2026-11-19T16:22:00.000Z"
+        },
+        {
+          "title": "Why Anthropic Won't Be the Next Apple or Amazon",
+          "link": "https://finance.yahoo.com/m/fa461112-7f08-30de-8c36-e3ef910184cf/why-anthropic-won%27t-be-the.html?.tsrc=rss",
+          "date": "2026-11-19T15:58:14.000Z"
+        },
+        {
+          "title": "Apple Stock Polishes Breakout As Nvidia-Led AI Boom Gets Wake-Up Call",
+          "link": "https://finance.yahoo.com/m/681ca0c6-76b1-321b-bdd4-bb83acc818fb/apple-stock-polishes-breakout.html?.tsrc=rss",
+          "date": "2026-11-19T15:29:23.000Z"
+        },
+        {
+          "title": "Connected Health Devices - Global Strategic Business Report 2026: Capitalize on 21.3% CAGR and $11.6B Revenue Opportunity by 2032 with Apple, Medtronic, Microsoft, Roche and Epic Systems",
+          "link": "https://finance.yahoo.com/healthcare/articles/connected-health-devices-global-strategic-151000586.html?.tsrc=rss",
+          "date": "2026-11-19T15:10:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "NASDAQ:MSFT",
+      "price": 509.82,
+      "chg1d": 0.3,
+      "chg5d": -2.52,
+      "chg1m": -4.34,
+      "rsi": 43.7,
+      "macdHist": -3.455,
+      "macdTrend": "空头减弱",
+      "news": [
+        {
+          "title": "A $13 Billion Hedge Fund Just Bought These 3 Stocks",
+          "link": "https://www.tikr.com/blog/a-13-billion-hedge-fund-just-bought-these-3-stocks?ref=yahoofinance&tlnk=yf-261119-jvwhvxxf&.tsrc=rss",
+          "date": "2026-11-19T17:26:56.000Z"
+        },
+        {
+          "title": "A $93 Billion Hedge Fund Just Bought These 3 Stocks",
+          "link": "https://www.tikr.com/blog/a-93-billion-hedge-fund-just-bought-these-3-stocks?ref=yahoofinance&tlnk=yf-261119-6p4hrv8g&.tsrc=rss",
+          "date": "2026-11-19T17:26:22.000Z"
+        },
+        {
+          "title": "The outages keep coming. Some Americans are preparing for a collapse.",
+          "link": "https://washingtonpost.com/technology/2026/11/19/wave-outages-has-americans-preparing-doomsday/?.tsrc=rss",
+          "date": "2026-11-19T17:22:24.000Z"
+        },
+        {
+          "title": "Accelerating Azure Growth and Copilot Adoption Fuel Microsoft Corp.’s (MSFT) AI Momentum",
+          "link": "https://finance.yahoo.com/technology/ai/articles/accelerating-azure-growth-copilot-adoption-165958924.html?.tsrc=rss",
+          "date": "2026-11-19T16:59:58.000Z"
+        },
+        {
+          "title": "Bill Ackman Says His Microsoft “Sale” Was Really a Swap Into Options",
+          "link": "https://247wallst.com/investing/2026/11/19/bill-ackman-says-his-microsoft-sale-was-really-a-swap-into-options/?.tsrc=rss",
+          "date": "2026-11-19T16:27:02.000Z"
+        },
+        {
+          "title": "What Makes Microsoft Corporation (MSFT) a Strong Long-Term Bet?",
+          "link": "https://finance.yahoo.com/markets/stocks/articles/makes-microsoft-corporation-msft-strong-162631490.html?.tsrc=rss",
+          "date": "2026-11-19T16:26:31.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "NASDAQ:GOOGL",
+      "price": 284.62,
+      "chg1d": 0.77,
+      "chg5d": -4.71,
+      "chg1m": -14.98,
+      "rsi": 36.9,
+      "macdHist": 0.928,
+      "macdTrend": "多头增强",
+      "news": [
+        {
+          "title": "Meta’s Advertising Business Could Drive Another Major Earnings Surprise",
+          "link": "https://247wallst.com/investing/2026/11/19/metas-advertising-business-could-drive-another-major-earnings-surprise/?.tsrc=rss",
+          "date": "2026-11-19T17:33:48.000Z"
+        },
+        {
+          "title": "Anthropic Now Earns $1.72 “For Every Dollar of Compute,” Says Aaron Levie. Great News for Amazon and Alphabet",
+          "link": "https://www.tikr.com/blog/anthropic-now-earns-1-72-for-every-dollar-of-compute-says-aaron-levie-great-news-for-amazon-and-alphabet?ref=yahoofinance&tlnk=yf-261119-q9jf5fhh&.tsrc=rss",
+          "date": "2026-11-19T17:31:50.000Z"
+        },
+        {
+          "title": "Broadcom Stocks Rise 4.21% as Chip Supplier Joins Anthropic's $26 Billion Placement",
+          "link": "https://finance.yahoo.com/markets/stocks/articles/broadcom-stocks-rise-4-21-173026533.html?.tsrc=rss",
+          "date": "2026-11-19T17:30:26.000Z"
+        },
+        {
+          "title": "TSMC Stocks Rise 3.11% as Foundry Takes $500 Million Slice of Anthropic IPO Placement",
+          "link": "https://finance.yahoo.com/markets/stocks/articles/tsmc-stocks-rise-3-11-172326201.html?.tsrc=rss",
+          "date": "2026-11-19T17:23:26.000Z"
+        },
+        {
+          "title": "Do Nvidia, Alphabet, Meta Drops Hurt Your Index Fund?",
+          "link": "https://www.trefis.com/stock/nvda/articles/626700/do-nvidia-alphabet-meta-drops-hurt-your-index-fund/2026-11-19?.tsrc=rss",
+          "date": "2026-11-19T17:10:08.000Z"
+        },
+        {
+          "title": "Anthropic shares jump 34% in Nasdaq debut after record IPO",
+          "link": "https://www.proactiveinvestors.com/companies/news/1102135/anthropic-shares-jump-34-in-nasdaq-debut-after-record-ipo-1102135.html?.tsrc=rss",
+          "date": "2026-11-19T17:07:00.000Z"
+        }
+      ]
+    }
+  ],
+  "errors": []
+}
