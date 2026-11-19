@@ -2,7 +2,7 @@
 // Stock Desk — static page. Live data comes from TradingView widgets; AI reports from data/reports/*.json
 // (written once a day by the GitHub Action in .github/workflows/daily-report.yml).
 
-const LOCALE = 'zh_TW';
+const LOCALE = window.ZH?.locale || 'zh_TW';
 const THEME = 'dark';
 const LS_KEY = 'stockdesk.watch.v1';
 const DEFAULT_SYMBOL = 'NASDAQ:NVDA';
@@ -305,6 +305,8 @@ function bind() {
   };
   $('syncWatch').onclick = syncWatch;
   $('heatSrc').onchange = loadHeat;
+  $('zhBtn').textContent = window.ZH?.mode === 'cn' ? '繁體' : '简体';
+  $('zhBtn').onclick = () => window.ZH?.set(window.ZH.mode === 'cn' ? 'tw' : 'cn');
   window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); if (h && h !== current && !h.endsWith('-sec')) loadSymbol(h, false); });
 }
 

@@ -116,3 +116,8 @@ select{background:var(--bg);color:var(--text);border:1px solid var(--line);borde
 #aiSettings{white-space:nowrap}
 .head-actions{flex-wrap:wrap}
 @media (max-width:600px){ #aiSettings .lbl{display:none} }
+#zhBtn{white-space:nowrap}
+.ai-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.ai-head h3{font-size:16px}
+.search-btn{min-width:0}
+@media (max-width:600px){ .brand{font-size:15px} #zhBtn{padding:4px 7px;flex:none} .search-btn{padding:7px 9px} }

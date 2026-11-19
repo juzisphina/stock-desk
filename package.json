@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Free static US-stock desk: TradingView charts, heatmap, news, Gemini AI daily report via GitHub Actions.",
   "scripts": {
-    "check": "node --check app.js && node --check ai.js && node --check scripts/daily-report.mjs && node --check scripts/update-symbols.mjs && node --test tests/lib.test.mjs",
+    "check": "node --check zh.js && node --check app.js && node --check ai.js && node --check scripts/daily-report.mjs && node --check scripts/update-symbols.mjs && node --test tests/lib.test.mjs",
     "report": "node scripts/daily-report.mjs",
     "symbols": "node scripts/update-symbols.mjs"
   }

@@ -230,11 +230,49 @@ function mdLite(text) {
 
 /* ---------- AI comment on the current symbol ----------
    Tries Gemini with Google Search (fresh news). Many free keys have no search quota, so on failure it
-   answers without search, using the daily report's numbers + headlines when the stock is in it. */
-async function aiStock() {
+   answers without search, using the daily report's numbers + headlines when the stock is in it.
+   Each result is saved per symbol (this browser only), so closing and reopening shows the same text. */
+const AI_CACHE = 'stockdesk.aicache.v1';
+function aiCache() { try { return JSON.parse(localStorage.getItem(AI_CACHE) || '{}'); } catch { return {}; } }
+function putAiCache(sym, entry) {
+  const c = aiCache();
+  c[sym] = entry;
+  const keep = Object.entries(c).sort((a, b) => b[1].at - a[1].at).slice(0, 30);
+  try { localStorage.setItem(AI_CACHE, JSON.stringify(Object.fromEntries(keep))); } catch {}
+}
+function companyName(sym) {
+  const t = sym.split(':').pop();
+  const row = (typeof symbols !== 'undefined' && symbols || []).find((r) => r[0] === t);
+  return row ? row[2] : '';
+}
+
+function renderAiComment(sym, e) {
+  const out = $('aiOut');
+  const t = sym.split(':').pop();
+  const when = new Date(e.at).toLocaleString(window.ZH?.mode === 'cn' ? 'zh-CN' : 'zh-TW', { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const name = companyName(sym);
+  const note = e.searched ? '已上網搜尋最新新聞' : (e.fromReport ? '沒有即時上網搜尋，新聞依據是日報抓到的標題' : '沒有即時上網搜尋，內容可能不是最新');
+  out.innerHTML = `<div class="ai-head">
+      <h3>🤖 ${esc(t)}${name ? ` <span class="muted">${esc(name)}</span>` : ''} 的 AI 點評</h3>
+      <div class="row"><button class="btn tiny ghost" type="button" id="aiRegen">🔄 重新產生</button><button class="btn tiny ghost" type="button" id="aiOutClose">收起</button></div>
+    </div>
+    <p class="small muted">產生於 ${esc(when)} · ${esc(e.model)} · ${esc(note)} · 僅供參考，不構成投資建議</p>
+    ${mdLite(e.text)}`
+    + (e.srcs?.length ? `<p class="src">來源：${e.srcs.map((w) => `<a href="${esc(w.uri)}" target="_blank" rel="noopener">${esc(w.title || '連結')}</a>`).join('')}</p>` : '');
+  out.dataset.sym = sym;
+  out.hidden = false;
+  $('aiOutClose').onclick = () => { out.hidden = true; };
+  $('aiRegen').onclick = () => withKeys(() => aiStock(true));
+}
+
+async function aiStock(force = false) {
   const sym = current;
   const out = $('aiOut');
+  if (typeof ensureSymbols === 'function') ensureSymbols().then(() => { if (!out.hidden && out.dataset.sym === sym && $('aiRegen')) { const c = aiCache()[sym]; if (c) renderAiComment(sym, c); } });
+  const cached = aiCache()[sym];
+  if (cached && !force) { renderAiComment(sym, cached); return; }
   out.hidden = false;
+  out.dataset.sym = sym;
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(new Date());
   const known = (window.currentReport?.stocks || []).find((s) => s.symbol === sym && !s.error);
   const data = known ? `
@@ -242,19 +280,20 @@ async function aiStock() {
   const heads = known?.news?.length ? `
 最新新聞標題：
 ${known.news.slice(0, 6).map((n) => '- ' + n.title).join(String.fromCharCode(10))}` : '';
-  const ask = `用繁體中文（台灣用語）寫一段簡短點評：
-1. 一句話結論，並標出情緒：利多 / 偏多 / 中性 / 偏空 / 利空
-2. 3 則最重要的新聞重點（每則一行）
-3. 技術面或股價走勢觀察
-4. 需要留意的風險
+  const ask = `用繁體中文（台灣用語）寫一段簡短點評。直接從第 1 點開始，不要開場白，不要重複標題：
+1. **結論**：一句話，並標出情緒：利多 / 偏多 / 中性 / 偏空 / 利空
+2. **新聞重點**：3 則（每則一行，用「- 」開頭）
+3. **技術面**：股價走勢觀察
+4. **風險**：需要留意的事（用「- 」開頭）
 不要給買賣建議，不要編造數字；不確定就說不確定。總長 250 字以內。`;
   const withSearch = `今天是 ${today}。請先用 Google 搜尋美股 ${sym}（股票代號 ${sym.split(':').pop()}）最近一週的重要新聞，然後${ask}${data}`;
   const noSearch = `今天是 ${today}。你現在無法上網搜尋。請根據下面提供的資料（如果有）和你已知的背景，對美股 ${sym}（股票代號 ${sym.split(':').pop()}）${ask}
 如果沒有提供新聞標題，第 2 點請改寫「公司近況背景」，並清楚說明資訊可能不是最新。${data}${heads}`;
-  const say = (html) => { if (sym === current) out.innerHTML = html; };
+  const say = (html) => { if (sym === current) { out.innerHTML = html; out.hidden = false; } };
+  const t = esc(sym.split(':').pop());
   let res = null, searched = false;
   if (modelInfo().noSearchDay !== today) {
-    say(`<p class="muted">🤖 正在用 Gemini 上網搜尋 ${esc(sym)} 的最新消息並分析…（約 10–30 秒）</p>`);
+    say(`<p class="muted">🤖 正在為 <b>${t}</b> 上網搜尋最新消息並分析…（約 10–30 秒）</p>`);
     try {
       res = await callGemini(aiKeys, modelChain().slice(0, 4), { contents: [{ role: 'user', parts: [{ text: withSearch }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.4 } });
       searched = true;
@@ -262,18 +301,17 @@ ${known.news.slice(0, 6).map((n) => '- ' + n.title).join(String.fromCharCode(10)
   }
   try {
     if (!res) {
-      say(`<p class="muted">🤖 正在分析 ${esc(sym)}…（這把金鑰今天沒有「上網搜尋」額度，改用日報資料分析）</p>`);
+      say(`<p class="muted">🤖 正在分析 <b>${t}</b>…（金鑰今天沒有「上網搜尋」額度，改用日報資料分析）</p>`);
       res = await gemini({ contents: [{ role: 'user', parts: [{ text: noSearch }] }], generationConfig: { temperature: 0.4 } });
     } else if (res.model !== workingModel) { workingModel = res.model; setModelInfo({ working: res.model }); }
     const c = res.j.candidates?.[0];
     const text = c?.content?.parts?.map((p) => p.text || '').join('') || '（沒有回覆）';
     const srcs = (c?.groundingMetadata?.groundingChunks || []).map((g) => g.web).filter((w) => w?.uri).slice(0, 6);
-    const note = searched ? '' : `<p class="small muted">⚠ 沒有即時上網搜尋${known ? '，新聞依據是今天日報抓到的標題' : '，內容可能不是最新'}。</p>`;
-    say(`<p class="small muted">🤖 ${esc(sym)} · ${esc(res.model)} · 僅供參考，不構成投資建議 <button class="btn tiny ghost" type="button" id="aiOutClose">收起</button></p>${note}${mdLite(text)}`
-      + (srcs.length ? `<p class="src">來源：${srcs.map((w) => `<a href="${esc(w.uri)}" target="_blank" rel="noopener">${esc(w.title || '連結')}</a>`).join('')}</p>` : ''));
-    if ($('aiOutClose')) $('aiOutClose').onclick = () => { out.hidden = true; };
+    const entry = { text, model: res.model, searched, fromReport: !!known?.news?.length, srcs, at: Date.now() };
+    putAiCache(sym, entry);
+    if (sym === current) renderAiComment(sym, entry);
   } catch (e) {
-    say(`<p class="err">AI 點評失敗：${esc(e.message)}</p>`);
+    say(`<p class="err">${t} 的 AI 點評失敗：${esc(e.message)}</p>`);
   }
 }
 
@@ -297,5 +335,10 @@ async function aiReport() {
   }
 }
 
-$('aiStock').onclick = () => withKeys(aiStock);
+$('aiStock').onclick = () => {
+  const out = $('aiOut');
+  if (!out.hidden && out.dataset.sym === current) { out.hidden = true; return; } // second click = close
+  if (aiCache()[current]) { aiStock(); return; } // saved comment: no password needed to read it
+  withKeys(() => aiStock());
+};
 $('report').addEventListener('click', (e) => { if (e.target.id === 'aiReportBtn') withKeys(aiReport); });
