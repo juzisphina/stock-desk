@@ -1,0 +1,54 @@
+name: daily-report
+
+on:
+  schedule:
+    - cron: '0 4 * * 1-5'   # 12:00 Beijing time, Mon–Fri (GitHub may delay a few minutes)
+  workflow_dispatch:         # "Run workflow" button for a manual update
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    env:
+      HAS_MAIL: ${{ secrets.MAIL_USERNAME != '' && secrets.MAIL_PASSWORD != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Refresh stock symbol list
+        run: node scripts/update-symbols.mjs
+        continue-on-error: true
+
+      - name: Build report
+        id: report
+        run: node scripts/daily-report.mjs
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+
+      - name: Commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then echo "nothing to commit"; exit 0; fi
+          git commit -m "report: $(date -u +%F)"
+          git pull --rebase origin ${{ github.ref_name }}
+          git push
+
+      - name: Email report
+        if: env.HAS_MAIL == 'true'
+        run: python3 scripts/send-mail.py
+        env:
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}

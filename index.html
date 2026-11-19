@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Desk 盯盘台</title>
+<meta name="description" content="免费开源的美股看盘台：K 线、技术指标、板块热力图、新闻、AI 日报。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230b1220'/><path d='M6 22l6-7 5 4 9-11' stroke='%2322c55e' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo">◆</span> Stock Desk <small>盯盘台</small></div>
+  <button class="search-btn" id="openSearch" type="button" aria-label="搜索股票">
+    <span>🔍 搜索美股代码 / 公司名</span><kbd id="kbdHint">Ctrl K</kbd>
+  </button>
+  <nav class="nav">
+    <a href="#chart-sec">K 线</a><a href="#heat-sec">热力图</a><a href="#news-sec">新闻</a><a href="#ai-sec">AI 日报</a>
+  </nav>
+</header>
+<div class="tape" id="tape"></div>
+
+<main>
+  <section id="chart-sec" class="card">
+    <div class="card-head">
+      <h2><span id="curSym">NASDAQ:NVDA</span></h2>
+      <div class="head-actions">
+        <button id="starBtn" type="button" class="btn">☆ 加入自选</button>
+        <button id="copyLink" type="button" class="btn ghost">复制链接</button>
+      </div>
+    </div>
+    <div class="info" id="info"></div>
+    <div class="grid-chart">
+      <div class="chart" id="chart"></div>
+      <div class="side">
+        <div class="ta" id="ta"></div>
+        <div class="watch">
+          <div class="sub-head"><h3>我的自选 Watchlist</h3><button class="btn tiny ghost" id="syncWatch" type="button" title="把自选股同步到每日 AI 日报">同步到日报</button></div>
+          <div id="chips" class="chips"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>自选股实时报价 Quotes</h2></div>
+    <div class="quotes" id="quotes"></div>
+  </section>
+
+  <section id="heat-sec" class="card">
+    <div class="card-head">
+      <h2>全市场板块热力图 Heatmap</h2>
+      <select id="heatSrc" aria-label="热力图范围">
+        <option value="SPX500">标普 500</option>
+        <option value="NASDAQ100">纳斯达克 100</option>
+        <option value="DJDJI">道琼斯 30</option>
+        <option value="AllUSA">全部美股</option>
+      </select>
+    </div>
+    <div class="heat" id="heat"></div>
+  </section>
+
+  <section id="news-sec" class="grid-2">
+    <div class="card">
+      <div class="card-head"><h2>个股新闻 <span class="muted" id="newsSym"></span></h2></div>
+      <div class="news" id="newsSymW"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>市场头条 Top Stories</h2></div>
+      <div class="news" id="newsAll"></div>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="card">
+      <div class="card-head"><h2>涨跌榜 Movers</h2></div>
+      <div class="hot" id="hot"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>财报数据 Financials</h2></div>
+      <div class="hot" id="fin"></div>
+    </div>
+  </section>
+
+  <section id="ai-sec" class="card">
+    <div class="card-head">
+      <h2>🤖 AI 日报 Daily Report</h2>
+      <select id="reportDate" aria-label="选择日期"></select>
+    </div>
+    <div id="report"><p class="muted">加载中…</p></div>
+  </section>
+</main>
+
+<footer class="foot">
+  行情与图表由 <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a> 提供 · AI 日报由 Google Gemini 生成，仅供参考，不构成投资建议。
+</footer>
+
+<div class="modal" id="search" hidden>
+  <div class="modal-box" role="dialog" aria-label="搜索">
+    <input id="q" type="search" placeholder="输入代码或公司名，如 TSLA / apple" autocomplete="off" spellcheck="false">
+    <ul id="results" class="results"></ul>
+    <p class="hint">↑↓ 选择 · Enter 打开 · Esc 关闭</p>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>
