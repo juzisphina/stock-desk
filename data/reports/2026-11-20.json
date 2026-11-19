@@ -1,20 +1,25 @@
 {
   "date": "2026-11-20",
-  "generatedAt": "2026-11-19T17:42:03.057Z",
+  "generatedAt": "2026-11-19T17:49:14.469Z",
   "ai": false,
   "model": null,
   "overview": "",
   "stocks": [
     {
       "symbol": "NASDAQ:NVDA",
-      "price": 149.65,
-      "chg1d": -0.87,
-      "chg5d": -9.95,
-      "chg1m": -32.58,
+      "price": 149.58,
+      "chg1d": -0.91,
+      "chg5d": -9.99,
+      "chg1m": -32.61,
       "rsi": 20.7,
-      "macdHist": -3.48,
-      "macdTrend": "空头减弱",
+      "macdHist": -3.485,
+      "macdTrend": "空頭減弱",
       "news": [
+        {
+          "title": "Anthropic's mega-IPO is still leaving investors working with 'imperfect information'",
+          "link": "https://finance.yahoo.com/video/anthropics-mega-ipo-is-still-leaving-investors-working-with-imperfect-information-174108134.html?.tsrc=rss",
+          "date": "2026-11-19T17:41:08.000Z"
+        },
         {
           "title": "Being Bearish on Anthropic: $1 Trillion Compute Bill and Nvidia turmoil",
           "link": "https://finance.yahoo.com/video/being-bearish-on-anthropic-1-trillion-compute-bill-and-nvidia-turmoil-172453054.html?.tsrc=rss",
@@ -39,23 +44,18 @@
           "title": "Strategy Just Got Dropped From MSCI’s Indexes. Can It Keep Buying Bitcoin?",
           "link": "https://www.fool.com/investing/2026/11/19/strategy-just-got-dropped-from-msci-s-indexes-can-it-keep-buying-bitcoin/?.tsrc=rss",
           "date": "2026-11-19T17:32:02.000Z"
-        },
-        {
-          "title": "Memory supply constraints will be even 'tighter' in 2027: Micron CTO",
-          "link": "https://finance.yahoo.com/technology/ai/article/memory-supply-constraints-will-be-even-tighter-in-2027-micron-cto-173141999.html?.tsrc=rss",
-          "date": "2026-11-19T17:31:41.000Z"
         }
       ]
     },
     {
       "symbol": "NASDAQ:TSLA",
-      "price": 379.9,
-      "chg1d": -1,
-      "chg5d": -4.42,
-      "chg1m": -1.7,
-      "rsi": 49.4,
-      "macdHist": -1.027,
-      "macdTrend": "空头增强",
+      "price": 379.14,
+      "chg1d": -1.19,
+      "chg5d": -4.61,
+      "chg1m": -1.9,
+      "rsi": 49.1,
+      "macdHist": -1.076,
+      "macdTrend": "空頭增強",
       "news": [
         {
           "title": "Elon Musk on his $500M in political spending: 'I feel pretty foolish'",
@@ -91,13 +91,13 @@
     },
     {
       "symbol": "NASDAQ:AAPL",
-      "price": 350.21,
-      "chg1d": -0.63,
-      "chg5d": -1.31,
-      "chg1m": 1.81,
-      "rsi": 54,
-      "macdHist": -0.014,
-      "macdTrend": "死叉",
+      "price": 349.81,
+      "chg1d": -0.75,
+      "chg5d": -1.43,
+      "chg1m": 1.69,
+      "rsi": 53.6,
+      "macdHist": -0.04,
+      "macdTrend": "死亡交叉",
       "news": [
         {
           "title": "Apple’s Longest-Serving Director Just Cashed Out $32 Million",
@@ -133,13 +133,13 @@
     },
     {
       "symbol": "NASDAQ:MSFT",
-      "price": 509.82,
-      "chg1d": 0.3,
-      "chg5d": -2.52,
-      "chg1m": -4.34,
-      "rsi": 43.7,
-      "macdHist": -3.455,
-      "macdTrend": "空头减弱",
+      "price": 508.28,
+      "chg1d": 0,
+      "chg5d": -2.81,
+      "chg1m": -4.63,
+      "rsi": 42.9,
+      "macdHist": -3.553,
+      "macdTrend": "空頭增強",
       "news": [
         {
           "title": "A $13 Billion Hedge Fund Just Bought These 3 Stocks",
@@ -175,13 +175,13 @@
     },
     {
       "symbol": "NASDAQ:GOOGL",
-      "price": 284.62,
-      "chg1d": 0.77,
-      "chg5d": -4.71,
-      "chg1m": -14.98,
-      "rsi": 36.9,
-      "macdHist": 0.928,
-      "macdTrend": "多头增强",
+      "price": 282.77,
+      "chg1d": 0.12,
+      "chg5d": -5.33,
+      "chg1m": -15.53,
+      "rsi": 35.2,
+      "macdHist": 0.81,
+      "macdTrend": "多頭增強",
       "news": [
         {
           "title": "Meta’s Advertising Business Could Drive Another Major Earnings Surprise",
