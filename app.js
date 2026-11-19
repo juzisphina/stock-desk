@@ -36,6 +36,7 @@ function normSymbol(raw) {
 function loadSymbol(sym, push = true) {
   current = normSymbol(sym) || DEFAULT_SYMBOL;
   $('curSym').textContent = current;
+  if ($('aiOut')) $('aiOut').hidden = true;
   $('newsSym').textContent = current;
   document.title = `${current} · Stock Desk 盯盤台`;
   if (push && location.hash.slice(1) !== current) history.replaceState(null, '', '#' + current);
@@ -241,9 +242,15 @@ async function showReport(date) {
   let rep;
   try { rep = await (await fetch(`data/reports/${date}.json`, { cache: 'no-cache' })).json(); }
   catch { $('report').innerHTML = '<p class="empty">讀取失敗</p>'; return; }
+  renderReport(rep);
+}
+
+function renderReport(rep) {
   const when = rep.generatedAt ? new Date(rep.generatedAt).toLocaleString('zh-TW', { hour12: false }) : '';
   let html = `<p class="meta">${esc(rep.date)} · 產生於 ${esc(when)} · ${rep.ai ? 'AI：' + esc(rep.model) : '未配置 AI（只有行情資料）'}</p>`;
   if (rep.overview) html += `<div class="overview">${esc(rep.overview)}</div>`;
+  if (!rep.ai) html += '<p><button class="btn ghost" id="aiReportBtn" type="button">🤖 用我的金鑰產生這份日報的 AI 點評</button></p>';
+  window.currentReport = rep;
   html += '<div class="rep-grid">';
   for (const s of rep.stocks || []) {
     const score = Math.max(0, Math.min(100, Number(s.score ?? 50)));
@@ -287,6 +294,7 @@ function bind() {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openSearch(); }
     else if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); openSearch(); }
     else if (e.key === 'Escape' && !$('search').hidden) closeSearch();
+    else if (e.key === 'Escape' && !$('aiModal').hidden) $('aiModal').hidden = true;
   });
   $('starBtn').onclick = () => {
     watch = watch.includes(current) ? watch.filter((x) => x !== current) : [...watch, current];

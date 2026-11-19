@@ -44,19 +44,32 @@ async function fetchStock(symbol) {
   return out;
 }
 
+// GEMINI_API_KEY may hold several keys (comma / newline separated): on 429/5xx try the next key,
+// then the fallback model.
 async function askGemini(prompt) {
-  const r = await fetch(`${GEMINI_BASE}/v1beta/models/${MODEL}:generateContent`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
-    body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.4, responseMimeType: 'application/json' },
-    }),
-  });
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(`Gemini HTTP ${r.status}: ${j.error?.message || ''}`);
-  const text = j.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
-  return parseAi(text);
+  const keys = env.GEMINI_API_KEY.split(/[\s,]+/).filter(Boolean);
+  const models = [...new Set([MODEL, 'gemini-2.5-flash-lite'])];
+  let last = '';
+  for (const model of models) {
+    for (const key of keys) {
+      const r = await fetch(`${GEMINI_BASE}/v1beta/models/${model}:generateContent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.4, responseMimeType: 'application/json' },
+        }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok) {
+        const text = j.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
+        return { ...parseAi(text), model };
+      }
+      last = `Gemini HTTP ${r.status}: ${j.error?.message || ''}`;
+      if (![429, 500, 503].includes(r.status)) throw new Error(last);
+    }
+  }
+  throw new Error(last);
 }
 
 async function main() {
@@ -76,7 +89,7 @@ async function main() {
         const a = bySym.get(s.symbol) || bySym.get(s.symbol.split(':').pop());
         if (a) Object.assign(s, { sentiment: a.sentiment, score: a.score, summary: a.summary });
       }
-      Object.assign(report, { ai: true, model: MODEL, overview: ai.overview });
+      Object.assign(report, { ai: true, model: ai.model, overview: ai.overview });
     } catch (e) {
       report.errors.push(String(e.message || e));
       console.error('AI failed:', e.message);
