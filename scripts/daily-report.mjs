@@ -11,7 +11,7 @@ const DATA_DIR = new URL(env.DATA_DIR ? env.DATA_DIR.replace(/\/?$/, '/') : 'dat
 const OUT_DIR = new URL('out/', ROOT);
 const UA = { 'User-Agent': 'Mozilla/5.0 (stock-desk daily report)' };
 const MODEL = env.GEMINI_MODEL || 'auto';
-const AUTO_MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
+const AUTO_MODELS = ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite', 'gemini-flash-lite-latest'];
 const GEMINI_BASE = env.GEMINI_BASE || 'https://generativelanguage.googleapis.com';
 const TZ = env.REPORT_TZ || 'Asia/Taipei';
 const KEEP = 90;
@@ -57,13 +57,13 @@ async function askGemini(prompt) {
       const lr = await fetch(`${GEMINI_BASE}/v1beta/models?pageSize=1000`, { headers: { 'x-goog-api-key': key } });
       if (lr.ok) listed = rankModels((await lr.json()).models || []);
     } catch {}
-    const models = [...new Set([MODEL === 'auto' ? null : MODEL, ...listed, ...AUTO_MODELS].filter(Boolean))].slice(0, 10);
+    const models = [...new Set([MODEL === 'auto' ? null : MODEL, ...listed, ...AUTO_MODELS].filter(Boolean))].slice(0, 14);
     for (const model of models) {
       let r;
       try { r = await fetch(`${GEMINI_BASE}/v1beta/models/${model}:generateContent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-        signal: AbortSignal.timeout(180000),
+        signal: AbortSignal.timeout(90000),
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           generationConfig: { temperature: 0.4, responseMimeType: 'application/json' },

@@ -66,11 +66,11 @@ test('prompt and email include stocks and escape html', () => {
 });
 
 import { rankModels } from '../scripts/lib.mjs';
-test('rankModels keeps chat models and orders flash → lite → pro, newest first', () => {
+test('rankModels keeps chat models: flash → lite → pro, newest first, aliases last', () => {
   const list = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.5-flash-preview-tts', 'gemini-flash-latest', 'gemini-3-flash-preview',
     'gemini-3.8-flash', 'gemini-3.8-flash-tts', 'gemini-3.1-flash-image', 'gemini-2.5-flash-lite', 'gemini-3.5-flash-lite',
     'gemini-flash-lite-latest', 'gemini-pro-latest', 'gemma-4-31b-it', 'gemini-4-argon', 'gemini-omni-1.2-flash'].map((n) => ({ name: 'models/' + n, supportedGenerationMethods: ['generateContent'] }));
   list.push({ name: 'models/gemini-9-flash', supportedGenerationMethods: ['embedContent'] });
-  assert.deepEqual(rankModels(list), ['gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3-flash-preview', 'gemini-2.5-flash',
-    'gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-2.5-flash-lite', 'gemini-pro-latest', 'gemini-2.5-pro']);
+  assert.deepEqual(rankModels(list), ['gemini-3.8-flash', 'gemini-3-flash-preview', 'gemini-2.5-flash',
+    'gemini-3.5-flash-lite', 'gemini-2.5-flash-lite', 'gemini-2.5-pro', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-pro-latest']);
 });

@@ -8,7 +8,7 @@ const GATE_HASH = '6feb7d4a19e72737f4aa009061f8bb4d39edfe0066ff20bd15a6adfa205de
 const ITER = 200000;
 const GEMINI = () => window.STOCKDESK_GEMINI_BASE || 'https://generativelanguage.googleapis.com';
 // Fallback order if Google's model list can't be read. Normally the list comes from the key itself.
-const AUTO_MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
+const AUTO_MODELS = ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite', 'gemini-flash-lite-latest'];
 const MAX_TRIES = 10;
 const MODEL_STORE = 'stockdesk.models.v1'; // { models: [...ranked], working: 'name' } — not secret
 
@@ -54,15 +54,16 @@ function fillModelSelect(models, pick) {
 const keyProblem = (status, msg) => status === 401 || status === 403 || (status === 400 && /api key/i.test(msg));
 
 // Try each key × model until one answers. Returns { j, model, key }.
-async function callGemini(keys, models, body) {
+async function callGemini(keys, models, body, { timeout = 45000, onTry } = {}) {
   const errs = [];
   for (const k of keys) {
     for (const model of models) {
+      onTry?.(k, model);
       let r, j;
       try {
         r = await fetch(`${GEMINI()}/v1beta/models/${model}:generateContent`, {
           method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': k }, body: JSON.stringify(body),
-          signal: AbortSignal.timeout(90000),
+          signal: AbortSignal.timeout(timeout),
         });
         j = await r.json().catch(() => ({}));
       } catch (e) {
@@ -148,24 +149,51 @@ $('aiClear').onclick = () => {
   localStorage.removeItem(AI_STORE); aiKeys = []; $('aiKeys').value = '';
   $('aiMsg').className = 'small'; $('aiMsg').textContent = '已清除。';
 };
+// Probe one key: ask every candidate model at once (short timeout) and keep the best-ranked one that answers.
+async function probeKey(k, models, onProgress) {
+  const cands = models.slice(0, 16);
+  let done = 0;
+  const results = await Promise.all(cands.map(async (m) => {
+    try {
+      const { model } = await callGemini([k], [m], { contents: [{ parts: [{ text: '只回覆 OK' }] }] }, { timeout: 15000 });
+      return model;
+    } catch { return null; } finally { onProgress(++done, cands.length); }
+  }));
+  return results.filter(Boolean);
+}
 $('aiTest').onclick = async () => {
   const keys = parseKeyInput();
   if (!keys.length) { $('aiMsg').textContent = '請先填寫金鑰'; return; }
-  $('aiMsg').className = 'small'; $('aiMsg').textContent = '正在向 Google 查詢每把金鑰可用的模型…';
+  $('aiTest').disabled = true;
+  $('aiMsg').className = 'small';
   const lines = [];
-  let all = [];
-  for (const k of keys) {
+  const show = (extra = '') => { $('aiMsg').innerHTML = lines.map(esc).join('<br>') + (extra ? (lines.length ? '<br>' : '') + esc(extra).replace(/&lt;br&gt;/g, '<br>') : ''); };
+  let all = [], ok = [];
+  const prog = keys.map(() => '查詢模型中…');
+  const tick = () => show(keys.map((k, i) => `第 ${i + 1} 把：${prog[i]}`).join('<br>'));
+  tick();
+  // all keys at once; each key probes its models in parallel (≤ ~20 s even if some models hang)
+  const rows = await Promise.all(keys.map(async (k, i) => {
     let models = [];
-    try { models = await listModels(k); } catch (e) { lines.push(`${mask(k)}：✗ ${keyProblem(e.status, e.message) ? '金鑰無效' : e.message.slice(0, 80)}`); continue; }
+    try { models = await listModels(k); } catch (e) { return `${mask(k)}：✗ ${keyProblem(e.status, e.message) ? '金鑰無效' : String(e.message).slice(0, 80)}`; }
     all = [...new Set([...all, ...models])];
-    try {
-      const { model } = await callGemini([k], [...new Set([$('aiModel').value === 'auto' ? null : $('aiModel').value, ...models])].filter(Boolean), { contents: [{ parts: [{ text: '只回覆 OK' }] }] });
-      workingModel = model;
-      lines.push(`${mask(k)}：✓ 可用，自動選用 ${model}（共找到 ${models.length} 個文字模型）`);
-    } catch (e) { lines.push(`${mask(k)}：✗ ${e.message}`); }
+    const working = await probeKey(k, models, (d, n) => { prog[i] = `試用模型 ${d}/${n}…`; tick(); });
+    if (!working.length) return `${mask(k)}：✗ 找到 ${models.length} 個模型，但現在都沒有免費額度或太忙，請稍後再試`;
+    ok = [...new Set([...ok, ...working])];
+    return `${mask(k)}：✓ 可用，自動選用 ${working[0]}（${working.length} 個模型可用：${working.slice(0, 4).join('、')}${working.length > 4 ? '…' : ''}）`;
+  }));
+  lines.push(...rows);
+  if (all.length) {
+    const { rankModels } = await import('./scripts/lib.mjs');
+    // models that answered go first, in rank order; the rest stay as later fallbacks
+    const ranked = rankModels(all);
+    const order = [...ranked.filter((m) => ok.includes(m)), ...ranked.filter((m) => !ok.includes(m))];
+    workingModel = ok.length ? order[0] : workingModel;
+    setModelInfo({ models: order, working: workingModel });
+    fillModelSelect(order, $('aiModel').value);
   }
-  if (all.length) { const { rankModels } = await import('./scripts/lib.mjs'); all = rankModels(all); setModelInfo({ models: all, working: workingModel }); fillModelSelect(all, $('aiModel').value); }
-  $('aiMsg').innerHTML = lines.map(esc).join('<br>') + '<br>按「加密儲存」保存。';
+  $('aiTest').disabled = false;
+  show('按「加密儲存」保存。');
 };
 $('aiSettings').onclick = () => openAi();
 $('aiClose').onclick = () => { $('aiModal').hidden = true; };
@@ -200,32 +228,52 @@ function mdLite(text) {
   return html + (inList ? '</ul>' : '');
 }
 
-/* ---------- AI comment on the current symbol (uses Google Search for fresh news) ---------- */
+/* ---------- AI comment on the current symbol ----------
+   Tries Gemini with Google Search (fresh news). Many free keys have no search quota, so on failure it
+   answers without search, using the daily report's numbers + headlines when the stock is in it. */
 async function aiStock() {
   const sym = current;
   const out = $('aiOut');
   out.hidden = false;
-  out.innerHTML = `<p class="muted">🤖 正在用 Gemini 搜尋 ${esc(sym)} 的最新消息並分析…（約 10–30 秒）</p>`;
-  const known = (window.currentReport?.stocks || []).find((s) => s.symbol === sym && !s.error);
-  const data = known ? `\n已知數據（${window.currentReport.date}）：價格 ${known.price}，1日 ${known.chg1d}%，5日 ${known.chg5d}%，1月 ${known.chg1m}%，RSI ${known.rsi}，MACD ${known.macdTrend}。` : '';
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(new Date());
-  const prompt = `今天是 ${today}。請先用 Google 搜尋美股 ${sym}（股票代號 ${sym.split(':').pop()}）最近一週的重要新聞，然後用繁體中文（台灣用語）寫一段簡短點評：${data}
+  const known = (window.currentReport?.stocks || []).find((s) => s.symbol === sym && !s.error);
+  const data = known ? `
+已知數據（${window.currentReport.date}）：價格 ${known.price}，1日 ${known.chg1d}%，5日 ${known.chg5d}%，1月 ${known.chg1m}%，RSI ${known.rsi}，MACD ${known.macdTrend}。` : '';
+  const heads = known?.news?.length ? `
+最新新聞標題：
+${known.news.slice(0, 6).map((n) => '- ' + n.title).join(String.fromCharCode(10))}` : '';
+  const ask = `用繁體中文（台灣用語）寫一段簡短點評：
 1. 一句話結論，並標出情緒：利多 / 偏多 / 中性 / 偏空 / 利空
 2. 3 則最重要的新聞重點（每則一行）
 3. 技術面或股價走勢觀察
 4. 需要留意的風險
 不要給買賣建議，不要編造數字；不確定就說不確定。總長 250 字以內。`;
+  const withSearch = `今天是 ${today}。請先用 Google 搜尋美股 ${sym}（股票代號 ${sym.split(':').pop()}）最近一週的重要新聞，然後${ask}${data}`;
+  const noSearch = `今天是 ${today}。你現在無法上網搜尋。請根據下面提供的資料（如果有）和你已知的背景，對美股 ${sym}（股票代號 ${sym.split(':').pop()}）${ask}
+如果沒有提供新聞標題，第 2 點請改寫「公司近況背景」，並清楚說明資訊可能不是最新。${data}${heads}`;
+  const say = (html) => { if (sym === current) out.innerHTML = html; };
+  let res = null, searched = false;
+  if (modelInfo().noSearchDay !== today) {
+    say(`<p class="muted">🤖 正在用 Gemini 上網搜尋 ${esc(sym)} 的最新消息並分析…（約 10–30 秒）</p>`);
+    try {
+      res = await callGemini(aiKeys, modelChain().slice(0, 4), { contents: [{ role: 'user', parts: [{ text: withSearch }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.4 } });
+      searched = true;
+    } catch { setModelInfo({ noSearchDay: today }); }
+  }
   try {
-    const { j, model } = await gemini({ contents: [{ role: 'user', parts: [{ text: prompt }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.4 } });
-    if (sym !== current) return;
-    const c = j.candidates?.[0];
+    if (!res) {
+      say(`<p class="muted">🤖 正在分析 ${esc(sym)}…（這把金鑰今天沒有「上網搜尋」額度，改用日報資料分析）</p>`);
+      res = await gemini({ contents: [{ role: 'user', parts: [{ text: noSearch }] }], generationConfig: { temperature: 0.4 } });
+    } else if (res.model !== workingModel) { workingModel = res.model; setModelInfo({ working: res.model }); }
+    const c = res.j.candidates?.[0];
     const text = c?.content?.parts?.map((p) => p.text || '').join('') || '（沒有回覆）';
     const srcs = (c?.groundingMetadata?.groundingChunks || []).map((g) => g.web).filter((w) => w?.uri).slice(0, 6);
-    out.innerHTML = `<p class="small muted">🤖 ${esc(sym)} · ${esc(model)} · 僅供參考，不構成投資建議 <button class="btn tiny ghost" type="button" id="aiOutClose">收起</button></p>${mdLite(text)}`
-      + (srcs.length ? `<p class="src">來源：${srcs.map((w) => `<a href="${esc(w.uri)}" target="_blank" rel="noopener">${esc(w.title || '連結')}</a>`).join('')}</p>` : '');
-    $('aiOutClose').onclick = () => { out.hidden = true; };
+    const note = searched ? '' : `<p class="small muted">⚠ 沒有即時上網搜尋${known ? '，新聞依據是今天日報抓到的標題' : '，內容可能不是最新'}。</p>`;
+    say(`<p class="small muted">🤖 ${esc(sym)} · ${esc(res.model)} · 僅供參考，不構成投資建議 <button class="btn tiny ghost" type="button" id="aiOutClose">收起</button></p>${note}${mdLite(text)}`
+      + (srcs.length ? `<p class="src">來源：${srcs.map((w) => `<a href="${esc(w.uri)}" target="_blank" rel="noopener">${esc(w.title || '連結')}</a>`).join('')}</p>` : ''));
+    if ($('aiOutClose')) $('aiOutClose').onclick = () => { out.hidden = true; };
   } catch (e) {
-    out.innerHTML = `<p class="err">AI 點評失敗：${esc(e.message)}</p>`;
+    say(`<p class="err">AI 點評失敗：${esc(e.message)}</p>`);
   }
 }
 

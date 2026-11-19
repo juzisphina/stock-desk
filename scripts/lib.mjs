@@ -146,7 +146,8 @@ export function renderEmail(rep, siteUrl = '') {
 }
 
 // Pick text-chat Gemini models from a ListModels response and order them for free-tier use:
-// Flash → Flash-Lite → Pro; "-latest" aliases first, then newest version; stable before preview.
+// Flash → Flash-Lite → Pro, newest version first, stable before preview. "-latest" aliases go last:
+// for some new keys they never answer (request hangs).
 const SKIP = /image|tts|banana|omni|transcribe|robotics|computer|customtools|audio|live|embed|argon|carbon|hydrogen|neon|thinking|exp/i;
 export function rankModels(models) {
   const names = (models || [])
@@ -161,6 +162,6 @@ export function rankModels(models) {
   };
   return [...new Set(names)].sort((a, b) => {
     const x = info(a), y = info(b);
-    return x.tier - y.tier || y.latest - x.latest || y.ver - x.ver || x.preview - y.preview || a.localeCompare(b);
+    return x.latest - y.latest || x.tier - y.tier || y.ver - x.ver || x.preview - y.preview || a.localeCompare(b);
   });
 }
