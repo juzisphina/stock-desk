@@ -68,3 +68,5 @@ npm run check     # 語法檢查 + 單元測試（無依賴）
 npm run report    # 本地產生日報（可設 GEMINI_API_KEY）
 npm run symbols   # 更新股票代號表
 ```
+
+> 改了 `style.css` / `zh.js` / `app.js` / `ai.js` 後，請把 `index.html` 裡這些檔名後面的 `?v=` 數字改新（例如日期時間），瀏覽器才會馬上抓新版本。
