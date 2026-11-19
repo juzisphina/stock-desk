@@ -17,7 +17,10 @@ const b64 = (u8) => btoa(String.fromCharCode(...new Uint8Array(u8)));
 const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
 const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 
-let aiPw = null;      // password, kept in memory only for this tab
+let aiPw = null;      // password, kept in memory (and sessionStorage) only for this tab
+const SESSION_PW = 'stockdesk.unlock'; // unlock once per browser tab; gone when the tab closes
+let pendingAfterSave = null;
+const hasStoredKeys = () => !!readStore()?.ct;
 let aiKeys = [];      // decrypted keys, memory only
 let pendingAfterUnlock = null;
 
@@ -110,7 +113,11 @@ function openAi(after) {
   $('aiMsg').textContent = '';
   if (aiPw) { showForm(); return; }
   $('aiLock').hidden = false; $('aiForm').hidden = true;
-  $('aiLockMsg').textContent = after ? '要使用 AI 點評，請先輸入密碼。' : '';
+  const n = readStore()?.n;
+  $('aiLockInfo').textContent = hasStoredKeys()
+    ? `這台裝置已存 ${n || ''} 把金鑰（已鎖定）。輸入密碼解鎖，這個分頁關閉前都不用再輸入。`
+    : '這台裝置還沒有設定 AI 金鑰。輸入密碼後就能填寫。';
+  $('aiLockMsg').textContent = '';
   $('aiPw').value = ''; $('aiPw').focus();
 }
 function showForm() {
@@ -127,11 +134,12 @@ $('aiLock').addEventListener('submit', async (e) => {
   $('aiLockMsg').textContent = '檢查中…';
   if (!(await checkPw(pw))) { $('aiLockMsg').textContent = '密碼錯誤'; return; }
   aiPw = pw;
+  try { sessionStorage.setItem(SESSION_PW, pw); } catch {}
   try { aiKeys = await loadKeys(); } catch { aiKeys = []; $('aiLockMsg').textContent = '舊資料無法解密，請重新填寫金鑰'; }
   const after = pendingAfterUnlock; pendingAfterUnlock = null;
   if (after && aiKeys.length) { $('aiModal').hidden = true; after(); return; }
   showForm();
-  if (after) { $('aiMsg').className = 'small err'; $('aiMsg').textContent = '請先填寫並儲存金鑰。'; }
+  if (after) { pendingAfterSave = after; $('aiMsg').className = 'small'; $('aiMsg').textContent = '貼上金鑰 → 按「測試金鑰並找模型」→「加密儲存」，儲存後會自動開始 AI 點評。'; }
 });
 
 const parseKeyInput = () => [...new Set($('aiKeys').value.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean))];
@@ -143,6 +151,7 @@ $('aiSave').onclick = async () => {
   if (!(modelInfo().models || []).length && keys[0]) { try { const m = await listModels(keys[0]); setModelInfo({ models: m }); fillModelSelect(m, $('aiModel').value); } catch {} }
   $('aiMsg').className = 'small ok';
   $('aiMsg').textContent = `已加密儲存 ${keys.length} 把金鑰（只在這台裝置）。`;
+  if (pendingAfterSave && keys.length) { const f = pendingAfterSave; pendingAfterSave = null; setTimeout(() => { $('aiModal').hidden = true; f(); }, 600); }
 };
 $('aiClear').onclick = () => {
   if (!confirm('確定清除這台裝置上儲存的所有金鑰？')) return;
@@ -196,7 +205,7 @@ $('aiTest').onclick = async () => {
   show('按「加密儲存」保存。');
 };
 $('aiSettings').onclick = () => openAi();
-$('aiClose').onclick = () => { $('aiModal').hidden = true; };
+$('aiClose').onclick = () => { $('aiModal').hidden = true; pendingAfterSave = null; };
 $('aiModal').addEventListener('click', (e) => { if (e.target === $('aiModal')) $('aiModal').hidden = true; });
 
 /* ---------- Gemini call with key rotation + model fallback ---------- */
@@ -339,6 +348,49 @@ $('aiStock').onclick = () => {
   const out = $('aiOut');
   if (!out.hidden && out.dataset.sym === current) { out.hidden = true; return; } // second click = close
   if (aiCache()[current]) { aiStock(); return; } // saved comment: no password needed to read it
+  if (!hasStoredKeys()) { aiIntro(); return; }   // no key on this device yet: show what we have + how to set up
   withKeys(() => aiStock());
 };
+
+// Shown when this device has no AI key: today's report data for the stock (if any) + a setup guide.
+function aiIntro() {
+  const sym = current, t = sym.split(':').pop(), out = $('aiOut');
+  const rep = window.currentReport;
+  const s = (rep?.stocks || []).find((x) => x.symbol === sym && !x.error);
+  const p = (v) => (v == null ? '–' : `${v >= 0 ? '+' : ''}${v}%`);
+  let body = '';
+  if (s?.summary) {
+    body = `<p class="small muted">來自 ${esc(rep.date)} 的 AI 日報（每天中午自動產生）</p><p><b>情緒：${esc(s.sentiment || '–')}</b>　${esc(s.summary)}</p>`;
+  } else if (s) {
+    body = `<p class="small muted">${esc(rep.date)} 日報資料（這份日報沒有 AI 點評）</p>
+      <p>價格 $${esc(s.price)} · 1日 ${p(s.chg1d)} · 5日 ${p(s.chg5d)} · 1月 ${p(s.chg1m)} · RSI ${esc(s.rsi ?? '–')} · MACD ${esc(s.macdTrend || '–')}</p>`
+      + ((s.news || []).length ? `<ul>${s.news.slice(0, 3).map((n) => `<li><a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a></li>`).join('')}</ul>` : '');
+  } else {
+    body = `<p class="small muted">${esc(t)} 不在每日 AI 日報的自選清單裡，所以這裡還沒有現成的分析。</p>`;
+  }
+  out.innerHTML = `<div class="ai-head"><h3>🤖 ${esc(t)} 的 AI 點評</h3><button class="btn tiny ghost" type="button" id="aiOutClose">收起</button></div>
+    ${body}
+    <div class="ai-setup">
+      <p><b>想看這檔股票的即時 AI 點評？</b>需要一把免費的 Google Gemini 金鑰：</p>
+      <ol>
+        <li>到 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> 用 Google 帳號免費申請</li>
+        <li>點下面「⚙ 去設定」→ 輸入密碼 → 貼上金鑰 →「測試金鑰並找模型」→「加密儲存」</li>
+      </ol>
+      <p class="small muted">金鑰只加密存在這台裝置的瀏覽器裡，不會上傳。設定好後會自動開始點評。</p>
+      <button class="btn" type="button" id="aiGoSetup">⚙ 去設定</button>
+    </div>`;
+  out.dataset.sym = sym;
+  out.hidden = false;
+  $('aiOutClose').onclick = () => { out.hidden = true; };
+  $('aiGoSetup').onclick = () => openAi(() => aiStock());
+}
+
+// Unlock silently if this tab was already unlocked (page refresh).
+(async () => {
+  let pw = null;
+  try { pw = sessionStorage.getItem(SESSION_PW); } catch {}
+  if (!pw || !(await checkPw(pw))) return;
+  aiPw = pw;
+  try { aiKeys = await loadKeys(); } catch { aiKeys = []; }
+})();
 $('report').addEventListener('click', (e) => { if (e.target.id === 'aiReportBtn') withKeys(aiReport); });
