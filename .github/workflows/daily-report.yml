@@ -2,7 +2,7 @@ name: daily-report
 
 on:
   schedule:
-    - cron: '0 4 * * 1-5'   # 12:00 Beijing time, Mon–Fri (GitHub may delay a few minutes)
+    - cron: '0 4 * * 1-5'   # 12:00 Taiwan time, Mon–Fri (GitHub may delay a few minutes)
   workflow_dispatch:         # "Run workflow" button for a manual update
 
 permissions:

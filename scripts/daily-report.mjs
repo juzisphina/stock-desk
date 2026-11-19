@@ -12,7 +12,7 @@ const OUT_DIR = new URL('out/', ROOT);
 const UA = { 'User-Agent': 'Mozilla/5.0 (stock-desk daily report)' };
 const MODEL = env.GEMINI_MODEL || 'gemini-2.5-flash';
 const GEMINI_BASE = env.GEMINI_BASE || 'https://generativelanguage.googleapis.com';
-const TZ = env.REPORT_TZ || 'Asia/Shanghai';
+const TZ = env.REPORT_TZ || 'Asia/Taipei';
 const KEEP = 90;
 
 const date = env.REPORT_DATE || new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date());
@@ -32,7 +32,7 @@ async function fetchStock(symbol) {
     const res = j.chart?.result?.[0];
     const closes = res?.indicators?.quote?.[0]?.close || [];
     const s = summarize(closes);
-    if (!s) throw new Error('没有价格数据');
+    if (!s) throw new Error('沒有價格資料');
     Object.assign(out, s);
   } catch (e) {
     out.error = `行情：${e.message}`;
@@ -62,7 +62,7 @@ async function askGemini(prompt) {
 async function main() {
   const wl = JSON.parse(await readFile(new URL('watchlist.json', ROOT), 'utf8'));
   const symbols = [...new Set((wl.symbols || []).map((s) => String(s).trim().toUpperCase()).filter(Boolean))].slice(0, 30);
-  if (!symbols.length) throw new Error('watchlist.json 里没有股票');
+  if (!symbols.length) throw new Error('watchlist.json 裡沒有股票');
 
   const stocks = [];
   for (const s of symbols) { stocks.push(await fetchStock(s)); await sleep(400); }
@@ -94,7 +94,7 @@ async function main() {
 
   await mkdir(OUT_DIR, { recursive: true });
   await writeFile(new URL('email.html', OUT_DIR), renderEmail(report, env.SITE_URL || ''));
-  const subject = `📈 自选股 AI 日报 ${date}`;
+  const subject = `📈 自選股 AI 日報 ${date}`;
   await writeFile(new URL('subject.txt', OUT_DIR), subject);
   if (env.GITHUB_OUTPUT) appendFileSync(env.GITHUB_OUTPUT, `subject=${subject}\n`);
 

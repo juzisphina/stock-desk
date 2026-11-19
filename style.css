@@ -5,7 +5,7 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif}
 a{color:var(--blue)}
 .top{position:sticky;top:0;z-index:20;display:flex;gap:16px;align-items:center;padding:10px 20px;background:rgba(7,11,20,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .brand{font-weight:700;font-size:18px;white-space:nowrap}

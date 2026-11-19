@@ -45,10 +45,10 @@ export function macd(closes, fast = 12, slow = 26, sig = 9) {
 
 export function macdTrend(m) {
   if (!m) return null;
-  if (m.hist > 0 && m.prevHist <= 0) return '金叉';
-  if (m.hist < 0 && m.prevHist >= 0) return '死叉';
-  if (m.hist > 0) return m.hist > m.prevHist ? '多头增强' : '多头减弱';
-  return m.hist < m.prevHist ? '空头增强' : '空头减弱';
+  if (m.hist > 0 && m.prevHist <= 0) return '黃金交叉';
+  if (m.hist < 0 && m.prevHist >= 0) return '死亡交叉';
+  if (m.hist > 0) return m.hist > m.prevHist ? '多頭增強' : '多頭減弱';
+  return m.hist < m.prevHist ? '空頭增強' : '空頭減弱';
 }
 
 const change = (a, b) => (a != null && b ? ((a - b) / b) * 100 : null);
@@ -95,22 +95,22 @@ export function parseRss(xml, max = 6) {
 
 export function buildPrompt(stocks, date) {
   const lines = stocks.filter((s) => !s.error).map((s) => {
-    const news = (s.news || []).map((n) => `    - ${n.title}`).join('\n') || '    - (无新闻)';
-    return `## ${s.symbol}\n价格 ${s.price}，1日 ${s.chg1d}%，5日 ${s.chg5d}%，1月 ${s.chg1m}%，RSI ${s.rsi}，MACD ${s.macdTrend}\n最新新闻标题：\n${news}`;
+    const news = (s.news || []).map((n) => `    - ${n.title}`).join('\n') || '    - (無新聞)';
+    return `## ${s.symbol}\n價格 ${s.price}，1日 ${s.chg1d}%，5日 ${s.chg5d}%，1月 ${s.chg1m}%，RSI ${s.rsi}，MACD ${s.macdTrend}\n最新新聞標題：\n${news}`;
   }).join('\n\n');
-  return `你是一名谨慎、客观的美股分析助理。今天是 ${date}。下面是用户自选股的行情、技术指标和最新新闻标题。
-请用简体中文输出 JSON（不要 markdown 代码块），格式：
-{"overview":"3-5 句话总结今天整体情况和最值得注意的事","stocks":[{"symbol":"与输入完全相同的代码","sentiment":"利好|偏多|中性|偏空|利空","score":0-100 的整数（50 为中性）,"summary":"2-3 句话：新闻情绪 + 技术面要点 + 需要留意的风险"}]}
-要求：只根据给出的数据判断，不编造数字；不要给买卖建议。
+  return `你是一名謹慎、客觀的美股分析助理。今天是 ${date}。下面是使用者自選股的行情、技術指標和最新新聞標題。
+請用繁體中文（台灣用語）輸出 JSON（不要 markdown 程式碼區塊），格式：
+{"overview":"3-5 句話總結今天整體情況和最值得注意的事","stocks":[{"symbol":"與輸入完全相同的代號","sentiment":"利多|偏多|中性|偏空|利空","score":0-100 的整數（50 為中性）,"summary":"2-3 句話：新聞情緒 + 技術面要點 + 需要留意的風險"}]}
+要求：只根據給出的資料判斷，不編造數字；不要給買賣建議。
 
 ${lines}`;
 }
 
-const SENTS = ['利好', '偏多', '中性', '偏空', '利空'];
+const SENTS = ['利多', '偏多', '中性', '偏空', '利空'];
 export function parseAi(text) {
   let t = String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
   const a = t.indexOf('{'), b = t.lastIndexOf('}');
-  if (a < 0 || b < a) throw new Error('AI 没有返回 JSON');
+  if (a < 0 || b < a) throw new Error('AI 沒有返回 JSON');
   const j = JSON.parse(t.slice(a, b + 1));
   const stocks = Array.isArray(j.stocks) ? j.stocks : [];
   return {
@@ -132,15 +132,15 @@ export function renderEmail(rep, siteUrl = '') {
     <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;vertical-align:top">
       <b style="font-family:monospace;font-size:15px">${escHtml(s.symbol)}</b>
       ${s.sentiment ? ` <span style="font-size:12px;background:#f1f5f9;border-radius:9px;padding:1px 8px">${escHtml(s.sentiment)} ${s.score ?? ''}</span>` : ''}<br>
-      ${s.error ? `<span style="color:#dc2626">数据获取失败</span>` : `<span style="font-family:monospace;font-size:13px">$${s.price} · 1日 ${fmtPct(s.chg1d)} · 5日 ${fmtPct(s.chg5d)} · RSI ${s.rsi ?? '–'} · MACD ${escHtml(s.macdTrend ?? '–')}</span>`}
+      ${s.error ? `<span style="color:#dc2626">資料取得失敗</span>` : `<span style="font-family:monospace;font-size:13px">$${s.price} · 1日 ${fmtPct(s.chg1d)} · 5日 ${fmtPct(s.chg5d)} · RSI ${s.rsi ?? '–'} · MACD ${escHtml(s.macdTrend ?? '–')}</span>`}
       ${s.summary ? `<p style="margin:6px 0">${escHtml(s.summary)}</p>` : ''}
       ${(s.news || []).slice(0, 3).map((n) => `<div style="font-size:13px">· <a href="${escHtml(n.link)}">${escHtml(n.title)}</a></div>`).join('')}
     </td></tr>`).join('');
-  return `<!doctype html><html><body style="font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;color:#111;max-width:680px;margin:auto">
-  <h2>📈 自选股 AI 日报 · ${escHtml(rep.date)}</h2>
-  ${rep.overview ? `<p style="background:#f0fdf4;border-left:3px solid #16a34a;padding:10px 12px;white-space:pre-wrap">${escHtml(rep.overview)}</p>` : '<p>（未配置 Gemini，只有行情数据）</p>'}
+  return `<!doctype html><html><body style="font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;color:#111;max-width:680px;margin:auto">
+  <h2>📈 自選股 AI 日報 · ${escHtml(rep.date)}</h2>
+  ${rep.overview ? `<p style="background:#f0fdf4;border-left:3px solid #16a34a;padding:10px 12px;white-space:pre-wrap">${escHtml(rep.overview)}</p>` : '<p>（未配置 Gemini，只有行情資料）</p>'}
   <table style="width:100%;border-collapse:collapse">${rows}</table>
-  ${siteUrl ? `<p><a href="${escHtml(siteUrl)}#ai-sec">在网站上查看完整日报 →</a></p>` : ''}
-  <p style="color:#6b7280;font-size:12px">由 AI 自动生成，仅供参考，不构成投资建议。</p>
+  ${siteUrl ? `<p><a href="${escHtml(siteUrl)}#ai-sec">在網站上檢視完整日報 →</a></p>` : ''}
+  <p style="color:#6b7280;font-size:12px">由 AI 自動產生，僅供參考，不構成投資建議。</p>
   </body></html>`;
 }

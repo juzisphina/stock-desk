@@ -23,9 +23,9 @@ test('macd sign follows trend and detects cross', () => {
   assert.ok(macd(up).macd > 0);
   const vshape = [...Array.from({ length: 50 }, (_, i) => 200 - i * 2), ...Array.from({ length: 6 }, (_, i) => 102 + i * 8)];
   const m = macd(vshape);
-  assert.ok(['金叉', '多头增强', '空头减弱'].includes(macdTrend(m)));
-  assert.equal(macdTrend({ hist: 1, prevHist: -1 }), '金叉');
-  assert.equal(macdTrend({ hist: -1, prevHist: 1 }), '死叉');
+  assert.ok(['黃金交叉', '多頭增強', '空頭減弱'].includes(macdTrend(m)));
+  assert.equal(macdTrend({ hist: 1, prevHist: -1 }), '黃金交叉');
+  assert.equal(macdTrend({ hist: -1, prevHist: 1 }), '死亡交叉');
 });
 
 test('summarize computes changes and skips nulls', () => {
@@ -50,14 +50,14 @@ test('parseRss reads items, decodes entities, drops bad links', () => {
 });
 
 test('parseAi tolerates code fences and clamps values', () => {
-  const r = parseAi('```json\n{"overview":"ok","stocks":[{"symbol":"nasdaq:aapl","sentiment":"大涨","score":140,"summary":"s"}]}\n```');
+  const r = parseAi('```json\n{"overview":"ok","stocks":[{"symbol":"nasdaq:aapl","sentiment":"大漲","score":140,"summary":"s"}]}\n```');
   assert.equal(r.overview, 'ok');
   assert.deepEqual(r.stocks[0], { symbol: 'NASDAQ:AAPL', sentiment: '中性', score: 100, summary: 's' });
   assert.throws(() => parseAi('no json here'));
 });
 
 test('prompt and email include stocks and escape html', () => {
-  const stocks = [{ symbol: 'NASDAQ:AAPL', price: 1, chg1d: 1, chg5d: 1, chg1m: 1, rsi: 50, macdTrend: '金叉', news: [{ title: '<script>x</script>', link: 'https://a' }] }];
+  const stocks = [{ symbol: 'NASDAQ:AAPL', price: 1, chg1d: 1, chg5d: 1, chg1m: 1, rsi: 50, macdTrend: '黃金交叉', news: [{ title: '<script>x</script>', link: 'https://a' }] }];
   assert.match(buildPrompt(stocks, '2026-01-01'), /NASDAQ:AAPL/);
   const html = renderEmail({ date: '2026-01-01', overview: '', stocks }, 'https://u.github.io/r/');
   assert.ok(!html.includes('<script>x'));

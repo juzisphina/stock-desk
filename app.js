@@ -2,7 +2,7 @@
 // Stock Desk — static page. Live data comes from TradingView widgets; AI reports from data/reports/*.json
 // (written once a day by the GitHub Action in .github/workflows/daily-report.yml).
 
-const LOCALE = 'zh_CN';
+const LOCALE = 'zh_TW';
 const THEME = 'dark';
 const LS_KEY = 'stockdesk.watch.v1';
 const DEFAULT_SYMBOL = 'NASDAQ:NVDA';
@@ -37,12 +37,12 @@ function loadSymbol(sym, push = true) {
   current = normSymbol(sym) || DEFAULT_SYMBOL;
   $('curSym').textContent = current;
   $('newsSym').textContent = current;
-  document.title = `${current} · Stock Desk 盯盘台`;
+  document.title = `${current} · Stock Desk 盯盤台`;
   if (push && location.hash.slice(1) !== current) history.replaceState(null, '', '#' + current);
 
   tv($('info'), 'symbol-info', { symbol: current, width: '100%', locale: LOCALE, colorTheme: THEME, isTransparent: true });
   tv($('chart'), 'advanced-chart', {
-    autosize: true, symbol: current, interval: 'D', timezone: 'America/New_York', theme: THEME, style: '1',
+    autosize: true, symbol: current, interval: 'D', timezone: 'Asia/Taipei', theme: THEME, style: '1',
     locale: LOCALE, allow_symbol_change: true, calendar: false, hide_side_toolbar: false,
     studies: ['STD;RSI', 'STD;MACD'], support_host: 'https://www.tradingview.com',
   });
@@ -117,7 +117,7 @@ async function initWatch() {
 
 function renderWatch() {
   const chips = $('chips');
-  chips.innerHTML = watch.length ? '' : '<span class="empty">还没有自选股，点上面的 ☆ 加入</span>';
+  chips.innerHTML = watch.length ? '' : '<span class="empty">還沒有自選股，點上面的 ☆ 加入</span>';
   for (const s of watch) {
     const c = document.createElement('span');
     c.className = 'chip' + (s === current ? ' cur' : '');
@@ -130,7 +130,7 @@ function renderWatch() {
     chips.appendChild(c);
   }
   const on = watch.includes(current);
-  $('starBtn').textContent = on ? '★ 已在自选' : '☆ 加入自选';
+  $('starBtn').textContent = on ? '★ 已在自選' : '☆ 加入自選';
   $('starBtn').classList.toggle('on', on);
 }
 
@@ -139,9 +139,9 @@ function renderQuotes() {
   const key = watch.join(',');
   if (key === quotesKey) return;
   quotesKey = key;
-  if (!watch.length) { $('quotes').innerHTML = '<p class="empty">自选为空</p>'; return; }
+  if (!watch.length) { $('quotes').innerHTML = '<p class="empty">自選為空</p>'; return; }
   tv($('quotes'), 'market-quotes', {
-    width: '100%', height: '100%', symbolsGroups: [{ name: '自选 Watchlist', symbols: watch.map((s) => ({ name: s, displayName: s.split(':').pop() })) }],
+    width: '100%', height: '100%', symbolsGroups: [{ name: '自選 Watchlist', symbols: watch.map((s) => ({ name: s, displayName: s.split(':').pop() })) }],
     showSymbolLogo: true, isTransparent: true, colorTheme: THEME, locale: LOCALE,
   });
 }
@@ -159,10 +159,10 @@ async function syncWatch() {
   try { await navigator.clipboard.writeText(json); } catch {}
   const info = repoInfo();
   if (info) {
-    toast('已复制自选列表 → 在打开的 GitHub 页面里全选粘贴，然后点 Commit');
+    toast('已複製自選列表 → 在開啟的 GitHub 頁面裡全選貼上，然後點 Commit');
     window.open(`https://github.com/${info.owner}/${info.repo}/edit/main/watchlist.json`, '_blank', 'noopener');
   } else {
-    toast('已复制自选列表（本地预览时无法打开 GitHub）');
+    toast('已複製自選列表（本地預覽時無法開啟 GitHub）');
   }
 }
 
@@ -182,7 +182,7 @@ async function ensureSymbols() {
 function searchSymbols(q) {
   q = q.trim().toUpperCase();
   if (!q) return [];
-  if (q.includes(':')) return [[q.split(':')[1], q.split(':')[0], '直接打开']];
+  if (q.includes(':')) return [[q.split(':')[1], q.split(':')[0], '直接開啟']];
   const exact = [], prefix = [], name = [];
   for (const row of symbols) {
     const [s, , n] = row;
@@ -193,14 +193,14 @@ function searchSymbols(q) {
   }
   prefix.sort((a, b) => a[0].length - b[0].length);
   const out = [...exact, ...prefix, ...name].slice(0, 30);
-  if (!exact.length && /^[A-Z.\-]{1,6}$/.test(q)) out.push([q, '', '直接用 TradingView 打开']);
+  if (!exact.length && /^[A-Z.\-]{1,6}$/.test(q)) out.push([q, '', '直接用 TradingView 開啟']);
   return out;
 }
 
 function drawResults() {
   $('results').innerHTML = results.map((r, i) =>
     `<li class="${i === sel ? 'sel' : ''}" data-i="${i}"><span class="sym">${esc(r[0])}</span><span class="ex">${esc(r[1])}</span><span class="nm">${esc(r[2])}</span></li>`
-  ).join('') || '<li class="empty">输入代码或公司英文名</li>';
+  ).join('') || '<li class="empty">輸入代號或公司英文名</li>';
   const li = $('results').querySelector('.sel');
   if (li) li.scrollIntoView({ block: 'nearest' });
 }
@@ -224,25 +224,25 @@ function closeSearch() { $('search').hidden = true; }
 
 /* ---------- AI report ---------- */
 const pct = (v) => (v == null || !isFinite(v)) ? '–' : `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span>`;
-const SENT = { '利好': 'b-up', '偏多': 'b-up', '中性': 'b-flat', '偏空': 'b-down', '利空': 'b-down' };
+const SENT = { '利多': 'b-up', '偏多': 'b-up', '中性': 'b-flat', '偏空': 'b-down', '利空': 'b-down' };
 
 async function initReports() {
   let idx;
   try { idx = await (await fetch('data/reports/index.json', { cache: 'no-cache' })).json(); } catch { idx = { dates: [] }; }
   const dates = idx.dates || [];
-  if (!dates.length) { $('report').innerHTML = '<p class="empty">还没有日报。每天中午 12 点（北京时间）自动生成，也可以在 GitHub 的 Actions 页面手动运行。</p>'; $('reportDate').hidden = true; return; }
+  if (!dates.length) { $('report').innerHTML = '<p class="empty">還沒有日報。每天中午 12 點（台灣時間）自動產生，也可以在 GitHub 的 Actions 頁面手動執行。</p>'; $('reportDate').hidden = true; return; }
   $('reportDate').innerHTML = dates.map((d) => `<option>${esc(d)}</option>`).join('');
   $('reportDate').onchange = () => showReport($('reportDate').value);
   showReport(dates[0]);
 }
 
 async function showReport(date) {
-  $('report').innerHTML = '<p class="muted">加载中…</p>';
+  $('report').innerHTML = '<p class="muted">載入中…</p>';
   let rep;
   try { rep = await (await fetch(`data/reports/${date}.json`, { cache: 'no-cache' })).json(); }
-  catch { $('report').innerHTML = '<p class="empty">读取失败</p>'; return; }
-  const when = rep.generatedAt ? new Date(rep.generatedAt).toLocaleString('zh-CN', { hour12: false }) : '';
-  let html = `<p class="meta">${esc(rep.date)} · 生成于 ${esc(when)} · ${rep.ai ? 'AI：' + esc(rep.model) : '未配置 AI（只有行情数据）'}</p>`;
+  catch { $('report').innerHTML = '<p class="empty">讀取失敗</p>'; return; }
+  const when = rep.generatedAt ? new Date(rep.generatedAt).toLocaleString('zh-TW', { hour12: false }) : '';
+  let html = `<p class="meta">${esc(rep.date)} · 產生於 ${esc(when)} · ${rep.ai ? 'AI：' + esc(rep.model) : '未配置 AI（只有行情資料）'}</p>`;
   if (rep.overview) html += `<div class="overview">${esc(rep.overview)}</div>`;
   html += '<div class="rep-grid">';
   for (const s of rep.stocks || []) {
@@ -251,10 +251,10 @@ async function showReport(date) {
     html += `<article class="stock">
       <div class="stock-top"><button type="button" data-sym="${esc(s.symbol)}">${esc(s.symbol.split(':').pop())}</button>
         ${s.sentiment ? `<span class="badge ${SENT[s.sentiment] || 'b-flat'}">${esc(s.sentiment)}</span>` : ''}</div>
-      ${s.error ? `<p class="empty">数据获取失败：${esc(s.error)}</p>` : `
+      ${s.error ? `<p class="empty">資料取得失敗：${esc(s.error)}</p>` : `
       <div class="nums"><span>$${s.price != null ? s.price.toFixed(2) : '–'}</span><span>1日 ${pct(s.chg1d)}</span><span>5日 ${pct(s.chg5d)}</span><span>1月 ${pct(s.chg1m)}</span></div>
       <div class="nums"><span>RSI ${s.rsi != null ? s.rsi.toFixed(1) : '–'}</span><span>MACD ${esc(s.macdTrend || '–')}</span></div>`}
-      ${s.sentiment ? `<div class="bar" title="情绪分 ${score}"><i style="width:${score}%;background:${color}"></i></div>` : ''}
+      ${s.sentiment ? `<div class="bar" title="情緒分 ${score}"><i style="width:${score}%;background:${color}"></i></div>` : ''}
       ${s.summary ? `<p>${esc(s.summary)}</p>` : ''}
       ${(s.news || []).length ? `<ul>${s.news.slice(0, 4).map((n) => `<li><a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a></li>`).join('')}</ul>` : ''}
     </article>`;
@@ -293,7 +293,7 @@ function bind() {
     saveWatch(); renderWatch(); renderQuotes();
   };
   $('copyLink').onclick = async () => {
-    try { await navigator.clipboard.writeText(location.href); toast('链接已复制'); } catch { toast(location.href); }
+    try { await navigator.clipboard.writeText(location.href); toast('連結已複製'); } catch { toast(location.href); }
   };
   $('syncWatch').onclick = syncWatch;
   $('heatSrc').onchange = loadHeat;
