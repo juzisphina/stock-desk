@@ -118,7 +118,7 @@ async function initWatch() {
 
 function renderWatch() {
   const chips = $('chips');
-  chips.innerHTML = watch.length ? '' : '<span class="empty">還沒有自選股，點上面的 ☆ 加入</span>';
+  chips.innerHTML = watch.length ? '' : '<span class="empty">還沒有自選股，點「＋ 新增」加入</span>';
   for (const s of watch) {
     const c = document.createElement('span');
     c.className = 'chip' + (s === current ? ' cur' : '');
@@ -206,17 +206,28 @@ function drawResults() {
   if (li) li.scrollIntoView({ block: 'nearest' });
 }
 
+let addMode = false; // search opened from the watchlist "＋ 新增" button
+const zh = (t) => (window.ZH?.mode === 'cn' ? window.ZH.t2s(t) : t);
 function pick(i) {
   const r = results[i];
   if (!r) return;
   closeSearch();
-  loadSymbol(r[1] ? `${r[1]}:${r[0]}` : r[0]);
+  const sym = normSymbol(r[1] ? `${r[1]}:${r[0]}` : r[0]);
+  if (addMode) {
+    if (!watch.includes(sym)) { watch = [...watch, sym]; saveWatch(); renderQuotes(); }
+    renderWatch();
+    toast(zh(`已加入自選：${sym.split(':').pop()}`));
+    return;
+  }
+  loadSymbol(sym);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-async function openSearch() {
+async function openSearch(forAdd = false) {
+  addMode = forAdd === true;
   $('search').hidden = false;
   $('q').value = '';
+  $('q').placeholder = zh(addMode ? '輸入要加入自選的代號或公司名，如 AMD / tesla' : '輸入代號或公司名，如 TSLA / apple');
   results = []; sel = 0; drawResults();
   $('q').focus();
   await ensureSymbols();
@@ -281,7 +292,8 @@ function toast(msg) {
 function bind() {
   const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
   $('kbdHint').textContent = isMac ? '⌘ K' : 'Ctrl K';
-  $('openSearch').onclick = openSearch;
+  $('openSearch').onclick = () => openSearch();
+  $('addWatch').onclick = () => openSearch(true);
   $('search').addEventListener('click', (e) => { if (e.target === $('search')) closeSearch(); });
   $('q').addEventListener('input', async () => { await ensureSymbols(); results = searchSymbols($('q').value); sel = 0; drawResults(); });
   $('q').addEventListener('keydown', (e) => {

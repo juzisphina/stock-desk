@@ -34,7 +34,7 @@
 Secrets 是加密儲存的，別人看不到，也不會出現在網站上。
 
 ### 3. 選日報關注的股票
-- 方法 A：網站上點 ☆ 加自選 → 點「同步到日報」→ 在開啟的 GitHub 頁面全選、貼上、點 **Commit changes**。
+- 方法 A：在「我的自選」點 **＋ 新增**（或在任何股票上點 ☆ 加入自選） → 點「同步到日報」→ 在開啟的 GitHub 頁面全選、貼上、點 **Commit changes**。
 - 方法 B：直接在 GitHub 上編輯 `watchlist.json`。
 
 格式是 `交易所:代號`，例如 `NASDAQ:AAPL`、`NYSE:BRK.B`，最多 30 檔。
