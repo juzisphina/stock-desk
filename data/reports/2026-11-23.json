@@ -1,0 +1,220 @@
+{
+  "date": "2026-11-23",
+  "generatedAt": "2026-11-23T05:05:36.764Z",
+  "ai": false,
+  "model": null,
+  "overview": "",
+  "stocks": [
+    {
+      "symbol": "NASDAQ:NVDA",
+      "price": 125.53,
+      "chg1d": -14.01,
+      "chg5d": -22.92,
+      "chg1m": -40.85,
+      "rsi": 15,
+      "macdHist": -4.628,
+      "macdTrend": "空頭增強",
+      "news": [
+        {
+          "title": "Trump urges Nvidia board to rehire Jensen Huang",
+          "link": "https://finance.yahoo.com/technology/articles/trump-urges-nvidia-board-rehire-042759448.html?.tsrc=rss",
+          "date": "2026-11-23T04:27:59.000Z"
+        },
+        {
+          "title": "Trump Throws His Weight Behind Jensen Huang’s Return As Nvidia CEO: ‘It Would Be The Best Thing For The Company’",
+          "link": "https://stocktwits.com/news-articles/markets/equity/trump-throws-his-weight-behind-jensen-huang-s-return-as-nvidia-ceo-it-would-be-the-best-thing-for-the-company/cNbY8mTR9S3?.tsrc=rss",
+          "date": "2026-11-23T04:13:37.000Z"
+        },
+        {
+          "title": "Worried About Nvidia? Buy This Fantastic Artificial Intelligence (AI) Stock Instead",
+          "link": "https://www.fool.com/investing/2026/11/22/worried-about-nvidia-buy-this-fantastic-artificial-intelligence-ai-stock-instead/?.tsrc=rss",
+          "date": "2026-11-23T03:20:02.000Z"
+        },
+        {
+          "title": "Michael Burry on Nvidia Board? ‘Big Short’ Investor Jokes He’d ‘Volunteer’ as NVDA Stock Sinks 40%",
+          "link": "https://finance.yahoo.com/markets/stocks/articles/michael-burry-nvidia-board-big-031945302.html?.tsrc=rss",
+          "date": "2026-11-23T03:19:45.000Z"
+        },
+        {
+          "title": "Kevin O’Leary Says Nvidia CEO Colette Kress Is ‘Pretty Sharp,’ Chip Demand ‘Insatiable’: Crypto Bettors Weigh Jensen Huang Comeback Odds",
+          "link": "https://finance.yahoo.com/markets/stocks/articles/kevin-o-leary-says-nvidia-025309458.html?.tsrc=rss",
+          "date": "2026-11-23T02:53:09.000Z"
+        },
+        {
+          "title": "Nvidia stock logs 2008-scale losing streak even as interim CEO delivers beat",
+          "link": "https://www.thestreet.com/investing/stocks/nvidia-stock-losing-streak-2008?.tsrc=rss",
+          "date": "2026-11-23T02:47:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "NASDAQ:TSLA",
+      "price": 345.82,
+      "chg1d": -7.64,
+      "chg5d": -11.38,
+      "chg1m": -7.68,
+      "rsi": 37.8,
+      "macdHist": -3.486,
+      "macdTrend": "空頭增強",
+      "news": [
+        {
+          "title": "Musk Says Tesla’s Real-World AI Will Get Smarter by “About an Order of Magnitude per Year”",
+          "link": "https://www.tikr.com/blog/musk-says-teslas-real-world-ai-will-get-smarter-by-about-an-order-of-magnitude-per-year?ref=yahoofinance&tlnk=yf-261122-c3v9325h&.tsrc=rss",
+          "date": "2026-11-23T04:50:01.000Z"
+        },
+        {
+          "title": "Forget Flying Roadsters. Tesla Investors Have 3 Bigger Challenges to Watch.",
+          "link": "https://www.fool.com/investing/2026/11/22/forget-flying-roadsters-tesla-investors-have-3-bigger-challenges-to-watch/?.tsrc=rss",
+          "date": "2026-11-23T02:20:01.000Z"
+        },
+        {
+          "title": "XPENG Launches Public Advanced ADAS Test Rides at Its Paris Store, Becoming the First Chinese Automaker to Offer the Experience Overseas",
+          "link": "https://finance.yahoo.com/technology/ai/articles/xpeng-launches-public-advanced-adas-010200031.html?.tsrc=rss",
+          "date": "2026-11-23T01:02:00.000Z"
+        },
+        {
+          "title": "Should You Buy Tesla or SpaceX Stock Before Their Potential Merger?",
+          "link": "https://www.fool.com/investing/2026/11/22/should-you-buy-tesla-or-spacex-stock-before-merger/?.tsrc=rss",
+          "date": "2026-11-22T22:21:02.000Z"
+        },
+        {
+          "title": "Elon Musk Doubles Down On Autonomy: Tesla Plans Wheel-Less, Pedal-Less Model Y To Sit Alongside Two-Seat Cybercab",
+          "link": "https://finance.yahoo.com/technology/articles/elon-musk-doubles-down-autonomy-213007363.html?.tsrc=rss",
+          "date": "2026-11-22T21:30:07.000Z"
+        },
+        {
+          "title": "Top bank resets Tesla stock target, yet standalone value is alarming",
+          "link": "https://www.thestreet.com/investing/stocks/top-bank-resets-tesla-stock-target-yet-standalone-value-is-alarming?.tsrc=rss",
+          "date": "2026-11-22T18:47:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "NASDAQ:AAPL",
+      "price": 342.56,
+      "chg1d": -1.9,
+      "chg5d": -3.85,
+      "chg1m": -1.63,
+      "rsi": 46.4,
+      "macdHist": -0.76,
+      "macdTrend": "空頭增強",
+      "news": [
+        {
+          "title": "BTIG's Krinsky Says S&P 500 Bottom Unlikely While Apple Holds Near Highs",
+          "link": "https://beincrypto.com/sp-500-bottom-unlikely-apple-krinsky/?.tsrc=rss",
+          "date": "2026-11-23T04:00:00.000Z"
+        },
+        {
+          "title": "What Is Apple (AAPL) Planning With Its New Autonomous AI Agent?",
+          "link": "https://finance.yahoo.com/technology/ai/articles/apple-aapl-planning-autonomous-ai-200614575.html?.tsrc=rss",
+          "date": "2026-11-22T20:06:14.000Z"
+        },
+        {
+          "title": "An $8.3 Billion Fund Just Bought These 3 Stocks",
+          "link": "https://www.tikr.com/blog/an-8-3-billion-fund-just-bought-these-3-stocks?ref=yahoofinance&tlnk=yf-261122-2jg2vpjj&.tsrc=rss",
+          "date": "2026-11-22T17:50:34.000Z"
+        },
+        {
+          "title": "Apple’s CEO Calls Memory Pricing “Unprecedented.” Its Purchase Obligations Jumped $33 Billion in a Quarter",
+          "link": "https://www.tikr.com/blog/apples-ceo-calls-memory-pricing-unprecedented-its-purchase-obligations-jumped-33-billion-in-a-quarter?ref=yahoofinance&tlnk=yf-261122-5m68j2ch&.tsrc=rss",
+          "date": "2026-11-22T14:44:02.000Z"
+        },
+        {
+          "title": "The App Paradigm Will “Slowly, if Not Quickly, Dissipate,” Says Mark Gurman. That’s a Problem for Apple",
+          "link": "https://www.tikr.com/blog/the-app-paradigm-will-slowly-if-not-quickly-dissipate-says-mark-gurman-thats-a-problem-for-apple?ref=yahoofinance&tlnk=yf-261122-whh6mr3f&.tsrc=rss",
+          "date": "2026-11-22T12:35:21.000Z"
+        },
+        {
+          "title": "Why is Apple Stock Holding Strong While the Rest of the Market Falls?",
+          "link": "https://beincrypto.com/apple-stock-market-crash-price-outlook/?.tsrc=rss",
+          "date": "2026-11-22T12:25:31.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "NASDAQ:MSFT",
+      "price": 484.52,
+      "chg1d": -2.77,
+      "chg5d": -7.51,
+      "chg1m": -7.02,
+      "rsi": 34.8,
+      "macdHist": -5.27,
+      "macdTrend": "空頭增強",
+      "news": [
+        {
+          "title": "15% of parents already cut college savings after Microsoft AI CEO told a mom 'probably not' to bother saving",
+          "link": "https://finance.yahoo.com/technology/ai/articles/15-parents-already-cut-college-211500548.html?.tsrc=rss",
+          "date": "2026-11-22T21:15:00.000Z"
+        },
+        {
+          "title": "Microsoft Remains Attractively Valued as Azure and Cloud Drive Growth",
+          "link": "https://www.barchart.com/story/news/8957349/microsoft-remains-attractively-valued-as-azure-and-cloud-drive-growth?.tsrc=rss",
+          "date": "2026-11-22T20:30:03.000Z"
+        },
+        {
+          "title": "Bank of America sends strong signal to Microsoft stock investors",
+          "link": "https://www.thestreet.com/investing/stocks/bank-of-america-sends-strong-signal-to-microsoft-stock-investors?.tsrc=rss",
+          "date": "2026-11-22T19:03:00.000Z"
+        },
+        {
+          "title": "Is Microsoft (MSFT) Building A Bigger AI Role In Scientific Labs?",
+          "link": "https://finance.yahoo.com/technology/ai/articles/microsoft-msft-building-bigger-ai-160715680.html?.tsrc=rss",
+          "date": "2026-11-22T16:07:15.000Z"
+        },
+        {
+          "title": "Warning for CoreWeave: Satya Nadella Says “Selling to One or Two Customers Is Not a Business”",
+          "link": "https://www.tikr.com/blog/warning-for-coreweave-satya-nadella-says-selling-to-one-or-two-customers-is-not-a-business?ref=yahoofinance&tlnk=yf-261122-jxpj37r5&.tsrc=rss",
+          "date": "2026-11-22T14:43:32.000Z"
+        },
+        {
+          "title": "A $3.1 Billion Fund Just Bought These 3 Stocks",
+          "link": "https://www.tikr.com/blog/a-3-1-billion-fund-just-bought-these-3-stocks?ref=yahoofinance&tlnk=yf-261122-x5gqq5xg&.tsrc=rss",
+          "date": "2026-11-22T11:20:52.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "NASDAQ:GOOGL",
+      "price": 265.29,
+      "chg1d": -2.7,
+      "chg5d": -10.31,
+      "chg1m": -18.18,
+      "rsi": 27.8,
+      "macdHist": -0.53,
+      "macdTrend": "死亡交叉",
+      "news": [
+        {
+          "title": "Musk Says Tesla’s Real-World AI Will Get Smarter by “About an Order of Magnitude per Year”",
+          "link": "https://www.tikr.com/blog/musk-says-teslas-real-world-ai-will-get-smarter-by-about-an-order-of-magnitude-per-year?ref=yahoofinance&tlnk=yf-261122-c3v9325h&.tsrc=rss",
+          "date": "2026-11-23T04:50:01.000Z"
+        },
+        {
+          "title": "Amazon Spent $1.82 For Every $1 Of Cash Last Quarter. Can It Keep Going?",
+          "link": "https://www.trefis.com/stock/amzn/articles/627456/amazon-spent-1-82-for-every-1-of-cash-last-quarter-can-it-keep-going/2026-11-22?.tsrc=rss",
+          "date": "2026-11-23T02:44:11.000Z"
+        },
+        {
+          "title": "Jim Cramer sends a strong signal to Google stock investors",
+          "link": "https://www.thestreet.com/investing/stocks/jim-cramer-sends-a-strong-signal-to-google-stock-investors?.tsrc=rss",
+          "date": "2026-11-23T00:37:00.000Z"
+        },
+        {
+          "title": "Her $420,000 in Employer Stock Inside Her 401(k) Lost 11% in a Day. Rolling It Into an IRA Would Turn Her Long-Term Gain Into Ordinary Income",
+          "link": "https://247wallst.com/personal-finance/2026/11/22/her-420000-in-employer-stock-inside-her-401k-lost-11-in-a-day-rolling-it-into-an-ira-would-turn-her-long-term-gain-into-ordinary-income/?.tsrc=rss",
+          "date": "2026-11-22T21:17:03.000Z"
+        },
+        {
+          "title": "Google’s 2027 chip plan is bad news for Broadcom",
+          "link": "https://www.thestreet.com/technology/google-2027-chip-plan-broadcom?.tsrc=rss",
+          "date": "2026-11-22T19:47:00.000Z"
+        },
+        {
+          "title": "Google Backs Superhot Geothermal in 50 MW Oregon Power Deal",
+          "link": "https://finance.yahoo.com/energy/articles/google-backs-superhot-geothermal-50-180000366.html?.tsrc=rss",
+          "date": "2026-11-22T18:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "errors": []
+}
